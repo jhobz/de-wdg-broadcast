@@ -60,24 +60,26 @@
     "generate-schema-types": "trash src/types/schemas && nodecg schema-types"
   },
   "dependencies": {
-    "ts-node": "*",
+    "@types/react": "*",
+    "@types/react-dom": "*",
+    "google-auth-library": "^9.6.3",
+    "google-spreadsheet": "^4.1.1",
     "react": "*",
     "react-dom": "*",
-    "@types/react": "*",
-    "@types/react-dom": "*"
+    "ts-node": "*"
   },
   "devDependencies": {
-    "typescript": "^5.1.3",
-    "@types/node": "^18",
     "@nodecg/types": "^2.0.0",
-    "@parcel/core": "*",
     "@parcel/config-default": "*",
+    "@parcel/core": "*",
     "@parcel/reporter-cli": "*",
     "@parcel/validator-typescript": "*",
+    "@types/node": "^18",
+    "concurrently": "*",
     "glob": "^10.2.7",
-    "trash-cli": "*",
     "nodemon": "*",
-    "concurrently": "*"
+    "trash-cli": "*",
+    "typescript": "^5.1.3"
   },
   "repository": "git@github.com:jhobz/de-wdg-broadcast.git",
   "license": "UNLICENSED",
