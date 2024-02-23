@@ -19,6 +19,20 @@
     "nodecg-bundle"
   ],
   "nodecg": {
+    "assetCategories": [
+      {
+        "name": "pg-teamlineupstats",
+        "title": "Pre-Game Team Line Up Stats",
+        "allowedTypes": [
+          "jpg",
+          "jpeg",
+          "png",
+          "mov",
+          "mp4",
+          "webm"
+        ]
+      }
+    ],
     "compatibleRange": "^2.0.0",
     "dashboardPanels": [
       {

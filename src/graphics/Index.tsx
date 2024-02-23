@@ -1,6 +1,12 @@
-import React from 'react';
+import React from 'react'
 
 export function Index() {
+	const statsBg = nodecg.Replicant('assets:pg-teamlineupstats')
+	let bgUrl = ''
+	statsBg.on('change', (newValue: any, oldValue) => {
+		console.log(newValue[0].url)
+		bgUrl = newValue[0].url
+	})
 	return (
 		<>
 			<p>
@@ -24,6 +30,10 @@ export function Index() {
 			</p>
 
 			<p>Have fun!</p>
+
+			<video key={bgUrl}>
+				<source src={bgUrl} />
+			</video>
 		</>
-	);
+	)
 }
