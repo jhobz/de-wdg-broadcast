@@ -1,14 +1,39 @@
 import React from 'react'
+import NodeCG from '@nodecg/types'
+import { useReplicant } from 'use-nodecg'
+
+type IndexProps = {
+	videoUrl: string
+}
 
 export function Index() {
-	const statsBg = nodecg.Replicant('assets:pg-teamlineupstats')
-	let bgUrl = ''
-	statsBg.on('change', (newValue: any, oldValue) => {
-		console.log(newValue[0].url)
-		bgUrl = newValue[0].url
-	})
+	const [bgUrl] = useReplicant<NodeCG.AssetFile[]>('assets:pg-teamlineupstats', [])
+	const ref = React.createRef<HTMLVideoElement>()
+	console.log(bgUrl[0]?.url)
+
+	React.useEffect(() => {
+		if (!ref.current) {
+			return
+		}
+
+		console.log('loaded')
+		ref.current.load()
+	}, [bgUrl])
+	return (
+		<IndexElement
+			ref={ref}
+			videoUrl={bgUrl[0]?.url}
+		/>
+	)
+}
+
+const IndexElement = React.forwardRef<HTMLVideoElement, IndexProps>((props, ref) => {
+	const videoRef = React.createRef<HTMLVideoElement>()
 	return (
 		<>
+			<p>
+				Video URL is currently: {props.videoUrl}
+			</p>
 			<p>
 				Hello, I'm one of the graphics in your bundle! I'm where you put the graphics you want to run in your
 				broadcast software!
@@ -31,9 +56,9 @@ export function Index() {
 
 			<p>Have fun!</p>
 
-			<video key={bgUrl}>
-				<source src={bgUrl} />
+			<video ref={ref} controls autoPlay>
+				<source src={props.videoUrl} type="video/mp4" />
 			</video>
 		</>
 	)
-}
+})

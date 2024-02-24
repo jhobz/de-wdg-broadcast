@@ -6,7 +6,7 @@
   "author": {
     "name": "Jeff Hobson",
     "email": "jeffrey296@gmail.com",
-    "url": ""
+    "url": "https://github.com/jhobz"
   },
   "files": [
     "dashboard",
@@ -75,8 +75,9 @@
   },
   "dependencies": {
     "ts-node": "*",
-    "react": "*",
-    "react-dom": "*",
+    "react": "^18",
+    "react-dom": "^18",
+    "use-nodecg": "^0.4.0",
     "@types/react": "*",
     "@types/react-dom": "*"
   },
