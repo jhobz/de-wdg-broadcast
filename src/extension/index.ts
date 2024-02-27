@@ -13,10 +13,27 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 		exampleReplicant.value.age++
 	}, 5000)
 
-	authorizeGoogle(nodecg)
+	loadStatsFromGoogle(nodecg)
 }
 
-async function authorizeGoogle(nodecg: NodeCG.ServerAPI) {
+type TeamStatsRowData = {
+	WINS: number
+	LOSSES: number
+	'WIN%': number
+	PTS: number
+	'FG%': number
+	'3P%': number
+	'FT%': number
+	OREB: number
+	DREB: number
+	REB: number
+	AST: number
+	TOV: number
+	STL: number
+	BLK: number
+}
+
+async function loadStatsFromGoogle(nodecg: NodeCG.ServerAPI) {
 	const serviceAccountAuth = new JWT({
 		// email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
 		// key: process.env.GOOGLE_PRIVATE_KEY,
@@ -30,11 +47,15 @@ async function authorizeGoogle(nodecg: NodeCG.ServerAPI) {
 	const doc = new GoogleSpreadsheet('1je1brcelW1SDgeuTFsS9ulsyiuNlfe5trZndqDd9kfQ', serviceAccountAuth)
 
 	await doc.loadInfo()
-	nodecg.log.info(doc.title)
-	// await doc.updateProperties({ title: 'renamed doc' })
-
-
 	const sheet = doc.sheetsByIndex[0]
-	nodecg.log.info(sheet.title)
-	nodecg.log.info(sheet.rowCount)
+	const rows = await sheet.getRows<TeamStatsRowData>()
+	nodecg.log.info(rows[0].toObject())
+	const stats = { teams: [], players: [] } as any
+	stats.teams.push(rows[0].toObject())
+
+	const statsRep = nodecg.Replicant('stats')
+	statsRep.value = stats
+	statsRep.on('change', (newValue) => {
+		nodecg.log.info(statsRep.value)
+	})
 }
