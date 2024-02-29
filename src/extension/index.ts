@@ -5,8 +5,12 @@ import { GoogleSpreadsheet } from 'google-spreadsheet'
 import { JWT } from 'google-auth-library'
 import creds  from './../../.config/wizards-district-gaming-13fa1a1ef6e2.json'
 
+/**
+ * How to log to NodeCG console: 
+ * nodecg.log.info("Hello, from your bundle's extension!")
+ */
+
 module.exports = function (nodecg: NodeCG.ServerAPI) {
-	nodecg.log.info("Hello, from your bundle's extension!")
 
 	const exampleReplicant = nodecg.Replicant('exampleReplicant') as unknown as NodeCG.ServerReplicantWithSchemaDefault<ExampleReplicant>
 	setInterval(() => {
@@ -77,7 +81,4 @@ async function loadStatsFromGoogle(nodecg: NodeCG.ServerAPI) {
 
 	const statsRep = nodecg.Replicant('stats')
 	statsRep.value = stats
-	statsRep.on('change', (newValue) => {
-		nodecg.log.info(statsRep.value)
-	})
 }
