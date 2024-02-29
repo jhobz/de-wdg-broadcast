@@ -1,5 +1,4 @@
 import type NodeCG from '@nodecg/types'
-import type { ExampleReplicant } from '../types/schemas'
 
 import { GoogleSpreadsheet } from 'google-spreadsheet'
 import { JWT } from 'google-auth-library'
@@ -10,16 +9,7 @@ import creds  from './../../.config/wizards-district-gaming-13fa1a1ef6e2.json'
  * nodecg.log.info("Hello, from your bundle's extension!")
  */
 
-module.exports = function (nodecg: NodeCG.ServerAPI) {
-
-	const exampleReplicant = nodecg.Replicant('exampleReplicant') as unknown as NodeCG.ServerReplicantWithSchemaDefault<ExampleReplicant>
-	setInterval(() => {
-		exampleReplicant.value.age++
-	}, 5000)
-
-	loadStatsFromGoogle(nodecg)
-}
-
+// TODO: Move this stuff to the graphics and import it? Might require waiting until useReplicant branch is merged. See how ASM does it.
 type TeamStatsRowData = {
 	WINS: number
 	LOSSES: number
@@ -37,7 +27,7 @@ type TeamStatsRowData = {
 	BLK: number
 }
 
-type PlayerStatsRowData = {
+export type PlayerStatsData = {
 	AGE: number
 	POS: number
 	GAMES: number
@@ -54,7 +44,30 @@ type PlayerStatsRowData = {
 	BLK: number
 }
 
-async function loadStatsFromGoogle(nodecg: NodeCG.ServerAPI) {
+type StatsData = {
+	teams: TeamStatsRowData[]
+	players: PlayerStatsData[]
+}
+
+const STATS_SHEET_ID = '1je1brcelW1SDgeuTFsS9ulsyiuNlfe5trZndqDd9kfQ'
+
+module.exports = function (nodecg: NodeCG.ServerAPI) {
+	const statsReplicant = nodecg.Replicant('stats')
+
+	const statsDoc = setupGoogle()
+	loadStatsFromGoogle(statsDoc).then((stats) => {
+		statsReplicant.value = stats
+	})
+
+	nodecg.listenFor('loadStats', () => {
+		nodecg.log.info('loadStats')
+		loadStatsFromGoogle(statsDoc).then((newStats) => {
+			statsReplicant.value = newStats
+		})
+	})
+}
+
+function setupGoogle() {
 	const serviceAccountAuth = new JWT({
 		// email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
 		// key: process.env.GOOGLE_PRIVATE_KEY,
@@ -65,20 +78,21 @@ async function loadStatsFromGoogle(nodecg: NodeCG.ServerAPI) {
 		],
 	})
 
-	const doc = new GoogleSpreadsheet('1je1brcelW1SDgeuTFsS9ulsyiuNlfe5trZndqDd9kfQ', serviceAccountAuth)
+	return new GoogleSpreadsheet(STATS_SHEET_ID, serviceAccountAuth)
+}
 
+async function loadStatsFromGoogle(doc: GoogleSpreadsheet) {
 	await doc.loadInfo()
 	const teamSheet = doc.sheetsByIndex[0]
 	const teamRows = await teamSheet.getRows<TeamStatsRowData>()
-	const stats = { teams: [], players: [] } as any
-	stats.teams.push(teamRows[0].toObject())
+	const stats = { teams: [], players: [] } as StatsData
+	stats.teams.push(teamRows[0].toObject() as TeamStatsRowData)
 
 	for (let i = 1; i < 6; i++) {
 		const playerSheet = doc.sheetsByIndex[i]
-		const playerRows = await playerSheet.getRows<PlayerStatsRowData>()
-		stats.players.push(playerRows[0].toObject())
+		const playerRows = await playerSheet.getRows<PlayerStatsData>()
+		stats.players.push(playerRows[0].toObject() as PlayerStatsData)
 	}
 
-	const statsRep = nodecg.Replicant('stats')
-	statsRep.value = stats
+	return stats
 }

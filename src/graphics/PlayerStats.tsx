@@ -1,5 +1,5 @@
-import React from 'react';
-import { createRoot } from 'react-dom/client';
+import React from 'react'
+import { createRoot } from 'react-dom/client'
 
 export function PlayerStats() {
 	const queryParams = new URLSearchParams(window.location.search)

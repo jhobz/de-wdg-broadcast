@@ -1,6 +1,12 @@
-import React from 'react';
+import React, { createRef, useRef } from 'react'
 
 export function Panel() {
+
+	const loadStats = () => {
+		console.log('pressed button')
+		nodecg.sendMessage('loadStats')
+	}
+
 	return (
 		<>
 			<p>Hello, I'm one of the panels in your bundle! I'm where you put your controls.</p>
@@ -22,6 +28,7 @@ export function Panel() {
 			</p>
 
 			<p>You've got this!</p>
+			<button onClick={loadStats}>Load Stats</button>
 		</>
 	)
 }
