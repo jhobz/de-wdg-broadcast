@@ -30,12 +30,12 @@
       }
     ],
     "graphics": [
-      // {
-      //   "file": "playerstats.html",
-      //   "width": 1920,
-      //   "height": 1080,
-      //   "singleInstance": false
-      // },
+      {
+        "file": "playerstats.html",
+        "width": 1920,
+        "height": 1080,
+        "singleInstance": false
+      },
       {
         "file": "teamstats.html",
         "width": 1920,

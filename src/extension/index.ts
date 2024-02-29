@@ -33,6 +33,23 @@ type TeamStatsRowData = {
 	BLK: number
 }
 
+type PlayerStatsRowData = {
+	AGE: number
+	POS: number
+	GAMES: number
+	PTS: number
+	'FG%': number
+	'3P%': number
+	'FT%': number
+	OREB: number
+	DREB: number
+	REB: number
+	AST: number
+	TOV: number
+	STL: number
+	BLK: number
+}
+
 async function loadStatsFromGoogle(nodecg: NodeCG.ServerAPI) {
 	const serviceAccountAuth = new JWT({
 		// email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
@@ -47,11 +64,16 @@ async function loadStatsFromGoogle(nodecg: NodeCG.ServerAPI) {
 	const doc = new GoogleSpreadsheet('1je1brcelW1SDgeuTFsS9ulsyiuNlfe5trZndqDd9kfQ', serviceAccountAuth)
 
 	await doc.loadInfo()
-	const sheet = doc.sheetsByIndex[0]
-	const rows = await sheet.getRows<TeamStatsRowData>()
-	nodecg.log.info(rows[0].toObject())
+	const teamSheet = doc.sheetsByIndex[0]
+	const teamRows = await teamSheet.getRows<TeamStatsRowData>()
 	const stats = { teams: [], players: [] } as any
-	stats.teams.push(rows[0].toObject())
+	stats.teams.push(teamRows[0].toObject())
+
+	for (let i = 1; i < 6; i++) {
+		const playerSheet = doc.sheetsByIndex[i]
+		const playerRows = await playerSheet.getRows<PlayerStatsRowData>()
+		stats.players.push(playerRows[0].toObject())
+	}
 
 	const statsRep = nodecg.Replicant('stats')
 	statsRep.value = stats
