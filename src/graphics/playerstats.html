@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<style>
+			* {
+				box-sizing: border-box;
+			}
+
+			html, body {
+				margin: 0;
+				padding: 0;
+			}
+
+			body {
+				font-family: 'Apotek';
+				font-size: 100px;
+				color: #f1f1f1;
+			}
+
+			.stats-row {
+				position: absolute;
+				font-size: 0.5em;
+				height: 110px;
+				left: 846px;
+			}
+
+			.stats-row > span {
+				display: inline-block;
+				margin-left: 18px;
+				width: 96px;
+				line-height: 106px;
+				text-align: center;
+			}
+
+			#stats-row1 {
+				top: 704px;
+			}
+
+			#stats-row2 {
+				top: 884px;
+			}
+
+			#wdg-AGE {
+				margin-left: 22px;
+			}
+
+			#wdg-POS {
+				margin-left: 62px;
+			}
+
+			#wdg-GAMES {
+				margin-left: 30px;
+				width: 148px;
+			}
+
+			#wdg-PTS {
+				margin-left: 22px;
+				width: 86px;
+			}
+
+			#wdg-FG\% {
+				margin-left: 48px;
+				width: 94px;
+			}
+
+			#wdg-3P\% {
+				margin-left: 30px;
+				width: 100px;
+			}
+
+			#wdg-FT\% {
+				margin-left: 20px;
+				width: 94px;
+			}
+
+			#wdg-OREB {
+				width: 112px;
+			}
+
+			#wdg-DREB {
+				margin-left: 44px;
+				width: 112px;
+			}
+
+			#wdg-REB {
+				margin-left: 56px;
+				width: 86px;
+			}
+
+			#wdg-AST {
+				margin-left: 46px;
+				width: 88px;
+			}
+
+			#wdg-TOV {
+				margin-left: 40px;
+				width: 90px;
+			}
+
+			#wdg-STL {
+				margin-left: 38px;
+				width: 80px;
+			}
+
+			#wdg-BLK {
+				margin-left: 40px;
+				width: 84px;
+			}
+		</style>
+		<script type="javascript">
+		</script>
+	</head>
+	<body>
+		<div id="root"></div>
+		<script type="module" src="./PlayerStats.tsx"></script>
+	</body>
+</html>
