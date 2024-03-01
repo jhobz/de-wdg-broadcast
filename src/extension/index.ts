@@ -11,6 +11,7 @@ import creds  from './../../.config/wizards-district-gaming-13fa1a1ef6e2.json'
 
 // TODO: Move this stuff to the graphics and import it? Might require waiting until useReplicant branch is merged. See how ASM does it.
 type TeamStatsRowData = {
+	TEAM: string
 	WINS: number
 	LOSSES: number
 	'WIN%': number
@@ -87,6 +88,9 @@ async function loadStatsFromGoogle(doc: GoogleSpreadsheet) {
 	const teamRows = await teamSheet.getRows<TeamStatsRowData>()
 	const stats = { teams: [], players: [] } as StatsData
 	stats.teams.push(teamRows[0].toObject() as TeamStatsRowData)
+	if (teamRows[1]) {
+		stats.teams.push(teamRows[1].toObject() as TeamStatsRowData)
+	}
 
 	for (let i = 1; i < 6; i++) {
 		const playerSheet = doc.sheetsByIndex[i]

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<style>
+			* {
+				box-sizing: border-box;
+			}
+
+			html, body {
+				margin: 0;
+				padding: 0;
+			}
+
+			body {
+				font-family: 'Apotek';
+				font-size: 100px;
+				color: #1a1a1a;
+			}
+
+			.stats-col {
+				position: absolute;
+				font-size: 0.5em;
+				height: 594px;
+				width: 348px;
+				padding: 8px;
+			}
+
+			.stats-col > div {
+				margin: 6px auto;
+				line-height: 47px;
+				text-align: center;
+			}
+
+			#stats-col1 {
+				left: 900px;
+				top: 424px;
+			}
+
+			#stats-col2 {
+				left: 1422px;
+				top: 424px;
+			}
+
+			#wdg-REB, #opp-REB, #wdg-TOV, #opp-TOV {
+				margin-top: 8px;
+			}
+
+		</style>
+		<script type="javascript">
+		</script>
+	</head>
+	<body>
+		<div id="root"></div>
+		<script type="module" src="./MatchupStats.tsx"></script>
+	</body>
+</html>
