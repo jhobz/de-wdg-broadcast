@@ -1,4 +1,5 @@
 import React from 'react'
+import { createRoot } from 'react-dom/client'
 import NodeCG from '@nodecg/types'
 import { useReplicant } from '@nodecg/react-hooks'
 
@@ -44,3 +45,6 @@ const IndexElement = React.forwardRef<HTMLVideoElement, IndexProps>((props, ref)
 	)
 })
 IndexElement.displayName = 'IndexElement'
+
+const root = createRoot(document.getElementById('root')!)
+root.render(<Index />)
