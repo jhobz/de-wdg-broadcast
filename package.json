@@ -22,10 +22,10 @@
     "dashboardPanels": [
       {
         "name": "panel",
-        "title": "Panel",
-        "width": 2,
+        "title": "Wizards District Gaming Broadcast Dashboard",
         "file": "panel.html",
-        "headerColor": "#525F78"
+        "headerColor": "#525F78",
+        "fullbleed": true
       }
     ],
     "graphics": [
