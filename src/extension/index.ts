@@ -9,45 +9,50 @@ import creds  from './../../.config/wizards-district-gaming-13fa1a1ef6e2.json'
  * nodecg.log.info("Hello, from your bundle's extension!")
  */
 
+const GSHEET_TEAM_COMPARISON_ID = 0
+const GSHEET_PLAYER_COMPARISON_ID = 282506544
+const GSHEET_WDG_PLAYERS_ID = 2122230946
+
 // TODO: Move this stuff to the graphics and import it? Might require waiting until useReplicant branch is merged. See how ASM does it.
 type TeamStatsRowData = {
-	TEAM: string
-	WINS: number
-	LOSSES: number
-	'WIN%': number
-	PTS: number
-	'FG%': number
-	'3P%': number
-	'FT%': number
-	OREB: number
-	DREB: number
-	REB: number
-	AST: number
-	TOV: number
-	STL: number
-	BLK: number
+	TEAM?: string
+	WINS?: string
+	LOSSES?: string
+	'WIN%'?: string
+	PTS?: string
+	'FG%'?: string
+	'3P%'?: string
+	'FT%'?: string
+	OREB?: string
+	DREB?: string
+	REB?: string
+	AST?: string
+	TOV?: string
+	STL?: string
+	BLK?: string
 }
 
 export type PlayerStatsData = {
-	AGE: number
-	POS: number
-	GAMES: number
-	PTS: number
-	'FG%': number
-	'3P%': number
-	'FT%': number
-	OREB: number
-	DREB: number
-	REB: number
-	AST: number
-	TOV: number
-	STL: number
-	BLK: number
+	AGE?: string
+	POS?: string
+	GAMES?: string
+	PTS?: string
+	'FG%'?: string
+	'3P%'?: string
+	'FT%'?: string
+	OREB?: string
+	DREB?: string
+	REB?: string
+	AST?: string
+	TOV?: string
+	STL?: string
+	BLK?: string
 }
 
 type StatsData = {
 	teams: TeamStatsRowData[]
 	players: PlayerStatsData[]
+	comparison: PlayerStatsData[]
 }
 
 const STATS_SHEET_ID = '1je1brcelW1SDgeuTFsS9ulsyiuNlfe5trZndqDd9kfQ'
@@ -83,19 +88,26 @@ function setupGoogle() {
 }
 
 async function loadStatsFromGoogle(doc: GoogleSpreadsheet) {
+	const stats = { teams: [], players: [], comparison: [] } as StatsData
+
 	await doc.loadInfo()
-	const teamSheet = doc.sheetsByIndex[0]
+	const teamSheet = doc.sheetsById[GSHEET_TEAM_COMPARISON_ID]
 	const teamRows = await teamSheet.getRows<TeamStatsRowData>()
-	const stats = { teams: [], players: [] } as StatsData
-	stats.teams.push(teamRows[0].toObject() as TeamStatsRowData)
+	stats.teams.push(teamRows[0].toObject())
 	if (teamRows[1]) {
-		stats.teams.push(teamRows[1].toObject() as TeamStatsRowData)
+		stats.teams.push(teamRows[1].toObject())
 	}
 
-	for (let i = 1; i < 6; i++) {
-		const playerSheet = doc.sheetsByIndex[i]
-		const playerRows = await playerSheet.getRows<PlayerStatsData>()
-		stats.players.push(playerRows[0].toObject() as PlayerStatsData)
+	const playerSheet = doc.sheetsById[GSHEET_WDG_PLAYERS_ID]
+	const playerRows = await playerSheet.getRows<PlayerStatsData>()
+	for (let i = 0; i < 5; i++) {
+		stats.players.push(playerRows[i].toObject())
+	}
+
+	const comparisonSheet = doc.sheetsById[GSHEET_PLAYER_COMPARISON_ID]
+	const comparisonRows = await comparisonSheet.getRows<PlayerStatsData>()
+	for (let i = 0; i < 2; i++) {
+		stats.comparison.push(comparisonRows[i].toObject())
 	}
 
 	return stats
