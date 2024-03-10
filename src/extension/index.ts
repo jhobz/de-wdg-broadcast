@@ -1,6 +1,6 @@
 import type NodeCG from '@nodecg/types'
 
-import { GoogleSpreadsheet } from 'google-spreadsheet'
+import { GoogleSpreadsheet, GoogleSpreadsheetRow } from 'google-spreadsheet'
 import { JWT } from 'google-auth-library'
 import creds  from './../../.config/wizards-district-gaming-13fa1a1ef6e2.json'
 
@@ -12,8 +12,15 @@ import creds  from './../../.config/wizards-district-gaming-13fa1a1ef6e2.json'
 const GSHEET_TEAM_COMPARISON_ID = 0
 const GSHEET_PLAYER_COMPARISON_ID = 282506544
 const GSHEET_WDG_PLAYERS_ID = 2122230946
+const GSHEET_TEAM_INFO_ID = 2074558796
 
 // TODO: Move this stuff to the graphics and import it? Might require waiting until useReplicant branch is merged. See how ASM does it.
+export type TeamInfo = {
+	team: string
+	primaryColor: null
+	hexCode: string
+}
+
 type TeamStatsRowData = {
 	TEAM?: string
 	WINS?: string
@@ -59,15 +66,20 @@ const STATS_SHEET_ID = '1je1brcelW1SDgeuTFsS9ulsyiuNlfe5trZndqDd9kfQ'
 
 module.exports = function (nodecg: NodeCG.ServerAPI) {
 	const statsReplicant = nodecg.Replicant('stats')
+	const teamsReplicant = nodecg.Replicant('teams')
 
-	const statsDoc = setupGoogle()
-	loadStatsFromGoogle(statsDoc).then((stats) => {
+	const mainDoc = setupGoogle()
+	loadStatsFromGoogle(mainDoc).then((stats) => {
 		statsReplicant.value = stats
+	})
+
+	loadTeamsFromGoogle(mainDoc).then((teams) => {
+		teamsReplicant.value = teams
 	})
 
 	nodecg.listenFor('loadStats', () => {
 		nodecg.log.info('loadStats')
-		loadStatsFromGoogle(statsDoc).then((newStats) => {
+		loadStatsFromGoogle(mainDoc).then((newStats) => {
 			statsReplicant.value = newStats
 		})
 	})
@@ -111,4 +123,20 @@ async function loadStatsFromGoogle(doc: GoogleSpreadsheet) {
 	}
 
 	return stats
+}
+
+async function loadTeamsFromGoogle(doc: GoogleSpreadsheet) {
+	await doc.loadInfo()
+	const teamInfoSheet = doc.sheetsById[GSHEET_TEAM_INFO_ID]
+	const teams = (await teamInfoSheet.getRows<TeamInfo>()).map((row: GoogleSpreadsheetRow) => {
+		const item = row.toObject()
+		return {
+			team: item.Team,
+			primaryColor: item['Primary Color'],
+			hexCode: item['Hex Code']
+		}
+	})
+	console.log(teams)
+
+	return teams
 }
