@@ -35,8 +35,8 @@ jobs:
             #   with:
             #     key: ${{ secrets.SSH_PRIVATE_KEY }}
             
-            - name: Pull new image and restart container
-              uses: appleboy/ssh-action@v1
+            - name: SSH Remote Commands
+              uses: appleboy/ssh-action@v1.0.3
               with:
                 host: ${{ secrets.SSH_HOST }}
                 username: ${{ secrets.SSH_USER }}
