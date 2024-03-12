@@ -33,10 +33,6 @@ module.exports = {
 		'react'
 	],
 	'rules': {
-		'indent': [
-			'error',
-			'tab'
-		],
 		'quotes': [
 			'error',
 			'single'
@@ -45,6 +41,7 @@ module.exports = {
 			'error',
 			'never'
 		],
+		'@typescript-eslint/no-unused-vars': 'warn'
 		// 'react/display-name': 0
 	},
 	'settings': {
