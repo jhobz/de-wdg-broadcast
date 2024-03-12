@@ -125,6 +125,7 @@
     "eslint-plugin-react": "^7.34.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "glob": "^10.2.7",
+    "nodecg-cli": "^8.6.8",
     "nodemon": "*",
     "prettier": "^3.2.5",
     "trash-cli": "*",
