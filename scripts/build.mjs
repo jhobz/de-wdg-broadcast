@@ -131,6 +131,7 @@ try {
   console.log('Bundle build completed successfully');
 } catch (_) {
   // the reporter-cli package will handle printing errors to the user
+  process.stdout.write(_);
   process.exit(1);
 }
 
