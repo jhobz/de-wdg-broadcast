@@ -13,18 +13,16 @@ jobs:
         name: Build bundle
         runs-on: ubuntu-latest
 
-        # strategy:
-        #     matrix:
-        #         node-version: ['18.7.0', '18.19.1']
+        strategy:
+            matrix:
+                node-version: ['18.7.0', '18.19.1']
 
         steps:
             - uses: actions/checkout@v4
-            # - name: Use Node.js v${{ matrix.node-version }}
-            - name: Use Node.js v18.19.1
+            - name: Use Node.js v${{ matrix.node-version }}
               uses: actions/setup-node@v4
               with:
-                # node-version: ${{ matrix.node-version }}
-                node-version: '18.19.1'
+                node-version: ${{ matrix.node-version }}
 
             - name: Build
               run: |
