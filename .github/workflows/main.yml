@@ -10,7 +10,7 @@ env:
 
 jobs:
     publish:
-        name: Publish Image
+        name: Publish Docker image
         runs-on: ubuntu-latest
 
         steps:
@@ -27,7 +27,7 @@ jobs:
 
     deploy:
         needs: publish
-        name: Deploy Image
+        name: Deploy Docker image
         runs-on: ubuntu-latest
 
         steps:
