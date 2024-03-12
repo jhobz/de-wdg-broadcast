@@ -1,19 +1,10 @@
-FROM ghcr.io/nodecg/nodecg:latest
+## BUILD
+FROM ghcr.io/nodecg/nodecg:latest AS build
 
-USER nodecg
+COPY --chown=nodecg:nodecg package.json /opt/nodecg/bundles/de-wdg-broadcast/package.json
 
-# RUN nodecg install jhobz/de-wdg-broadcast && nodecg defaultconfig de-wdg-broadcast
-# RUN cd bundles/de-wdg-broadcast && npm run build && cd ../..
-
-WORKDIR /opt/nodecg/bundles/de-wdg-broadcast
-
-COPY package.json package-lock.json ./
-COPY scripts ./scripts
-
-RUN npm ci --omit=dev
-RUN npm run build
-
-COPY --chown=nodecg:nodecg --from=build . /opt/nodecg/bundles/de-wdg-broadcast
-# COPY --chown=nodecg:nodecg --from=build ./dashboard /opt/nodecg/bundles/de-wdg-broadcast/dashboard
-# COPY --chown=nodecg:nodecg --from=build ./extension /opt/nodecg/bundles/de-wdg-broadcast/extension
-# COPY --chown=nodecg:nodecg --from=build ./graphics /opt/nodecg/bundles/de-wdg-broadcast/graphics
+# Make sure you build your project! Either build before your docker build step, or in this file before this point.
+COPY --chown=nodecg:nodecg node_modules /opt/nodecg/bundles/de-wdg-broadcast/node_modules
+COPY --chown=nodecg:nodecg dashboard /opt/nodecg/bundles/de-wdg-broadcast/dashboard
+COPY --chown=nodecg:nodecg extension /opt/nodecg/bundles/de-wdg-broadcast/extension
+COPY --chown=nodecg:nodecg graphics /opt/nodecg/bundles/de-wdg-broadcast/graphics
