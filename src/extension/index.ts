@@ -2,7 +2,6 @@ import type NodeCG from '@nodecg/types'
 
 import { GoogleSpreadsheet, GoogleSpreadsheetRow } from 'google-spreadsheet'
 import { JWT } from 'google-auth-library'
-import creds  from './../../.config/wizards-district-gaming-13fa1a1ef6e2.json'
 
 /**
  * How to log to NodeCG console: 
@@ -65,10 +64,12 @@ type StatsData = {
 const STATS_SHEET_ID = '1je1brcelW1SDgeuTFsS9ulsyiuNlfe5trZndqDd9kfQ'
 
 module.exports = function (nodecg: NodeCG.ServerAPI) {
+	const googleCreds = nodecg.bundleConfig.google
+
 	const statsReplicant = nodecg.Replicant('stats')
 	const teamsReplicant = nodecg.Replicant('teams')
 
-	const mainDoc = setupGoogle()
+	const mainDoc = setupGoogle(googleCreds)
 	loadStatsFromGoogle(mainDoc).then((stats) => {
 		statsReplicant.value = stats
 	})
@@ -85,7 +86,7 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 	})
 }
 
-function setupGoogle() {
+function setupGoogle(creds) {
 	const serviceAccountAuth = new JWT({
 		// email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
 		// key: process.env.GOOGLE_PRIVATE_KEY,
