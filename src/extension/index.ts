@@ -61,10 +61,24 @@ type StatsData = {
 	comparison: PlayerStatsData[]
 }
 
+type GoogleConfig = {
+	type: string
+	project_id: string
+	private_key_id: string
+	private_key: string
+	client_email: string
+	client_id: string
+	auth_uri: string
+	token_uri: string
+	auth_provider_x509_cert_url: string
+	client_x509_cert_url: string
+	universe_domain: string
+}
+
 const STATS_SHEET_ID = '1je1brcelW1SDgeuTFsS9ulsyiuNlfe5trZndqDd9kfQ'
 
 module.exports = function (nodecg: NodeCG.ServerAPI) {
-	const googleCreds = nodecg.bundleConfig.google
+	const googleCreds = nodecg.bundleConfig.google as GoogleConfig
 
 	const statsReplicant = nodecg.Replicant('stats')
 	const teamsReplicant = nodecg.Replicant('teams')
@@ -86,7 +100,7 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 	})
 }
 
-function setupGoogle(creds) {
+function setupGoogle(creds: GoogleConfig) {
 	const serviceAccountAuth = new JWT({
 		// email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
 		// key: process.env.GOOGLE_PRIVATE_KEY,
