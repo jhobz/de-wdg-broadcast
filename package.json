@@ -113,10 +113,10 @@
   },
   "devDependencies": {
     "@nodecg/types": "^2.0.0",
-    "@parcel/config-default": "^2.11.0",
-    "@parcel/core": "^2.11.0",
-    "@parcel/reporter-cli": "^2.11.0",
-    "@parcel/validator-typescript": "^2.11.0",
+    "@parcel/config-default": "2.11.0",
+    "@parcel/core": "2.11.0",
+    "@parcel/reporter-cli": "2.11.0",
+    "@parcel/validator-typescript": "2.11.0",
     "@types/node": "^18",
     "@typescript-eslint/eslint-plugin": "^7.1.1",
     "@typescript-eslint/parser": "^7.1.1",
@@ -129,7 +129,7 @@
     "nodemon": "*",
     "prettier": "^3.2.5",
     "trash-cli": "*",
-    "typescript": "^5.4.2"
+    "typescript": "5.3.3"
   },
   "repository": "git@github.com:jhobz/de-wdg-broadcast.git",
   "license": "UNLICENSED",
