@@ -1,5 +1,5 @@
 ## BUILD
-FROM ghcr.io/nodecg/nodecg:latest AS build
+FROM ghcr.io/nodecg/nodecg:latest
 
 COPY --chown=nodecg:nodecg package.json /opt/nodecg/bundles/de-wdg-broadcast/package.json
 
