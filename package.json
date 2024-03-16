@@ -136,6 +136,7 @@
     "nodecg-cli": "^8.6.8",
     "nodemon": "*",
     "prettier": "^3.2.5",
+    "process": "^0.11.10",
     "trash-cli": "*",
     "typescript": "5.3.3"
   },
