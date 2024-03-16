@@ -47,7 +47,6 @@ jobs:
                 npm ci
                 npm run build
                 npm i --omit=dev
-                ls -la
 
             - name: Login
               run: |
