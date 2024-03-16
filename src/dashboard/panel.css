@@ -1,16 +1,40 @@
-.ImageSelect {
+.monospace {
+  font-family: monospace;
+}
+
+.flex {
     display: flex;
-    flex-direction: row;
+}
+
+.flex-between {
+    justify-content: space-between;
     align-items: center;
-    justify-content: flex-start;
-    gap: 10px;
+}
+
+.Panel {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.p-component {
+    margin: 0.5rem;
+}
+
+.ImageSelect {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
 }
 
 .ImageSelect > img {
-    flex-grow: 0;
-    width: 50px;
+  flex-grow: 0;
+  width: 50px;
 }
 
 .ImageSelect > label {
-    flex-grow: 1;
+  flex-grow: 1;
 }

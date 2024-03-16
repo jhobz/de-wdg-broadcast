@@ -5,6 +5,7 @@ import 'primereact/resources/themes/md-dark-indigo/theme.css'
 import { TeamInfo } from '../extension/index'
 
 import ImageSelect, { Option } from '../components/ImageSelect'
+import RundownEditor from './RundownEditor'
 
 export function Panel() {
 	// const [selectedOption, setSelectedOption] = React.useState()
@@ -32,12 +33,12 @@ export function Panel() {
 	}, [teamsRep, teamLogosRep])
 
 	return (
-		<>
+		<div className='Panel'>
 			<div>
 				<ImageSelect options={teamOptions}/>
+				<Button onClick={loadStats}>Load Stats</Button>
 			</div>
-			<br />
-			<Button onClick={loadStats}>Load Stats</Button>
-		</>
+			<RundownEditor></RundownEditor>
+		</div>
 	)
 }
