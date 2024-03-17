@@ -6,6 +6,7 @@ import { useReplicant } from '@nodecg/react-hooks'
 const Background = styled.div<{ $url: string }>`
 	width: 1920px;
 	height: 1080px;
+    position: relative;
 
 	background: url(${(props) => props.$url});
 `

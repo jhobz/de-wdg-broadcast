@@ -1,12 +1,35 @@
-import { useReplicant } from '@nodecg/react-hooks'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
+import styled from 'styled-components'
+import { useReplicant } from '@nodecg/react-hooks'
+
 import { StatsData } from '../extension/index'
 import { AssetOverlay } from '../components/AssetOverlay'
+import { OpponentLogo, WDGLogo } from '../components/TeamLogo'
+
+const WDGImage = styled(WDGLogo)`
+	width: 250px;
+	height: 250px;
+	position: absolute;
+	left: 900px;
+	top: 40px;
+	object-fit: contain;
+`
+
+const OpponentImage = styled(OpponentLogo)`
+	width: 250px;
+	height: 250px;
+	position: absolute;
+	left: 1500px;
+	top: 40px;
+	object-fit: contain;
+`
 
 export function MatchupStats() {
 	return (
 		<AssetOverlay assetName='matchup-stats-overlay'>
+			<WDGImage />
+			<OpponentImage />
 			<MatchupStatsData />
 		</AssetOverlay>
 	)
