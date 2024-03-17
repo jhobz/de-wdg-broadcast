@@ -55,7 +55,7 @@ export type PlayerStatsData = {
 	BLK?: string
 }
 
-type StatsData = {
+export type StatsData = {
 	teams: TeamStatsRowData[]
 	players: PlayerStatsData[]
 	comparison: PlayerStatsData[]
