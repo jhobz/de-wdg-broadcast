@@ -13,6 +13,8 @@ const GSHEET_PLAYER_COMPARISON_ID = 282506544
 const GSHEET_WDG_PLAYERS_ID = 2122230946
 const GSHEET_TEAM_INFO_ID = 2074558796
 
+let logger: NodeCG.Logger
+
 // TODO: Move this stuff to the graphics and import it? Might require waiting until useReplicant branch is merged. See how ASM does it.
 export type TeamInfo = {
 	team: string
@@ -20,42 +22,42 @@ export type TeamInfo = {
 	hexCode: string
 }
 
-type TeamStatsRowData = {
-	TEAM?: string
-	WINS?: string
-	LOSSES?: string
-	'WIN%'?: string
-	PTS?: string
-	'FG%'?: string
-	'3P%'?: string
-	'FT%'?: string
-	OREB?: string
-	DREB?: string
-	REB?: string
-	AST?: string
-	TOV?: string
-	STL?: string
-	BLK?: string
-}
+type TeamStatsRowData = Partial<{
+	TEAM: string
+	WINS: string
+	LOSSES: string
+	'WIN%': string
+	PTS: string
+	'FG%': string
+	'3P%': string
+	'FT%': string
+	OREB: string
+	DREB: string
+	REB: string
+	AST: string
+	TOV: string
+	STL: string
+	BLK: string
+}>
 
-export type PlayerStatsData = {
-	AGE?: string
-	POS?: string
-	GAMES?: string
-	PTS?: string
-	'FG%'?: string
-	'3P%'?: string
-	'FT%'?: string
-	OREB?: string
-	DREB?: string
-	REB?: string
-	AST?: string
-	TOV?: string
-	STL?: string
-	BLK?: string
-}
+export type PlayerStatsData = Partial<{
+	AGE: string
+	POS: string
+	GAMES: string
+	PTS: string
+	'FG%': string
+	'3P%': string
+	'FT%': string
+	OREB: string
+	DREB: string
+	REB: string
+	AST: string
+	TOV: string
+	STL: string
+	BLK: string
+}>
 
-type StatsData = {
+export type StatsData = {
 	teams: TeamStatsRowData[]
 	players: PlayerStatsData[]
 	comparison: PlayerStatsData[]
@@ -78,25 +80,61 @@ type GoogleConfig = {
 const STATS_SHEET_ID = '1je1brcelW1SDgeuTFsS9ulsyiuNlfe5trZndqDd9kfQ'
 
 module.exports = function (nodecg: NodeCG.ServerAPI) {
+	logger = nodecg.log
+
 	const googleCreds = nodecg.bundleConfig.google as GoogleConfig
 
-	const statsReplicant = nodecg.Replicant('stats')
-	const teamsReplicant = nodecg.Replicant('teams')
+	const googleStatusRep = nodecg.Replicant<boolean>('googleStatus')
+	const statsRep = nodecg.Replicant<StatsData>('stats')
+	const teamsRep = nodecg.Replicant<TeamInfo[]>('teams')
+	const opponentRep = nodecg.Replicant<string>('opponent')
 
 	const mainDoc = setupGoogle(googleCreds)
+	googleStatusRep.value = false
+
 	loadStatsFromGoogle(mainDoc).then((stats) => {
-		statsReplicant.value = stats
+		statsRep.value = stats
+		nodecg.log.info('Successfully loaded stats from Google Spreadsheet')
 	})
 
 	loadTeamsFromGoogle(mainDoc).then((teams) => {
-		teamsReplicant.value = teams
+		googleStatusRep.value = true
+		teamsRep.value = teams
+		nodecg.log.info('Successfully loaded team info from Google Spreadsheet')
 	})
 
+	if (!opponentRep.value) {
+		if (statsRep.value && statsRep.value.teams.length >= 2) {
+			opponentRep.value = statsRep.value.teams[1].TEAM
+		}
+	}
+
 	nodecg.listenFor('loadStats', () => {
-		nodecg.log.info('loadStats')
+		nodecg.log.info('Refreshing data from Google Spreadsheet')
+		googleStatusRep.value = false
+
 		loadStatsFromGoogle(mainDoc).then((newStats) => {
-			statsReplicant.value = newStats
+			googleStatusRep.value = true
+			statsRep.value = newStats
 		})
+	})
+
+	opponentRep.on('change', async (newOpponent) => {
+		const validTeams = teamsRep.value?.map((teamInfo) => {
+			return teamInfo.team
+		})
+
+		if (!validTeams || !validTeams.length) {
+			logger.error('Could not determine list of valid teams when trying to write to Google Sheet.')
+			return
+		}
+
+		if (!newOpponent || !validTeams.includes(newOpponent)) {
+			logger.error('Tried to send invalid team to Google Sheet!')
+			return
+		}
+
+		statsRep.value = await setTeamComparisonInGoogle(mainDoc, newOpponent)
 	})
 }
 
@@ -120,9 +158,12 @@ async function loadStatsFromGoogle(doc: GoogleSpreadsheet) {
 	await doc.loadInfo()
 	const teamSheet = doc.sheetsById[GSHEET_TEAM_COMPARISON_ID]
 	const teamRows = await teamSheet.getRows<TeamStatsRowData>()
-	stats.teams.push(teamRows[0].toObject())
-	if (teamRows[1]) {
-		stats.teams.push(teamRows[1].toObject())
+
+	if (teamRows && teamRows.length >= 2) {
+		stats.teams.push(teamRows[0].toObject())
+		if (teamRows[1]) {
+			stats.teams.push(teamRows[1].toObject())
+		}
 	}
 
 	const playerSheet = doc.sheetsById[GSHEET_WDG_PLAYERS_ID]
@@ -151,7 +192,18 @@ async function loadTeamsFromGoogle(doc: GoogleSpreadsheet) {
 			hexCode: item['Hex Code']
 		}
 	})
-	console.log(teams)
 
 	return teams
+}
+
+async function setTeamComparisonInGoogle(doc: GoogleSpreadsheet, newTeam: string) {
+	await doc.loadInfo()
+	const teamSheet = doc.sheetsById[GSHEET_TEAM_COMPARISON_ID]
+	await teamSheet.loadCells('A2:B3')
+	const opponentCell = teamSheet.getCellByA1('A3')
+
+	opponentCell.value = newTeam
+	await teamSheet.saveUpdatedCells()
+
+	return await loadStatsFromGoogle(doc)
 }

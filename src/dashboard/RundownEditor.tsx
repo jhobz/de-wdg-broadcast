@@ -64,7 +64,7 @@ const RUNDOWN_TEMPLATE = `Template for 8:15 PM start time. Update times and thin
 
 const MD_CHEAT_SHEET_LINK = 'https://www.markdownguide.org/cheat-sheet/'
 
-export default function RundownEditor() {
+export const RundownEditor: React.FC = () => {
     const [rundownRep, setRundownRep] = useReplicant<string>('rundown')
     const [cursor, setCursor] = useState<number>(0)
     const textareaRef = createRef<HTMLTextAreaElement>()

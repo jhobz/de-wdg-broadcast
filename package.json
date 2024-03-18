@@ -33,6 +33,15 @@
         ]
       },
       {
+        "name": "matchup-stats-overlay",
+        "title": "Matchup Stats Overlay",
+        "allowedTypes": [
+          "jpg",
+          "jpeg",
+          "png"
+        ]
+      },
+      {
         "name": "team-logos",
         "title": "NBA 2K League Team Logos",
         "allowedTypes": [
@@ -112,11 +121,13 @@
     "@types/react-dom": "^18.2.22",
     "google-auth-library": "^9.6.3",
     "google-spreadsheet": "^4.1.1",
+    "primeicons": "^6.0.1",
     "primereact": "^10.5.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-markdown": "^9.0.1",
     "remark-gfm": "^4.0.0",
+    "styled-components": "^6.1.8",
     "ts-node": "^10.9.2"
   },
   "devDependencies": {

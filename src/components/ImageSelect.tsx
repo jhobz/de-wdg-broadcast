@@ -1,42 +1,52 @@
 import React from 'react'
-import { Dropdown } from 'primereact/dropdown'
+import styled from 'styled-components'
+import { Dropdown, DropdownProps } from 'primereact/dropdown'
+import { FlexRow } from './layout/Flexbox'
 
-export type Option = {
+const Option = styled(FlexRow)`
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    height: 30px;
+
+    img {
+        width: 30px;
+        object-fit: contain;
+    }
+
+    label {
+        flex-grow: 1;
+    }
+`
+
+export type ImageSelectOption = {
     name: string
     img?: string
 }
 
-type ImageSelectProps = {
-    options: Option[] | undefined
-}
-
-export default function ImageSelect(props: ImageSelectProps) {
-    const [selectedOption, setSelectedOption] = React.useState<Option | null>(null)
-
-    const optionTemplate = (option: Option) => {
+export default function ImageSelect(props: DropdownProps) {
+    const optionTemplate = (option: ImageSelectOption) => {
         return (
-            <div className='ImageSelect'>
+            <Option className='ImageSelect'>
                 <img src={option.img}/>
                 <label>{option.name}</label>
-            </div>
+            </Option>
         )
     }
 
-    // const options: Option[] = [
-    //     { img: 'https://static.wikia.nocookie.net/fruits-information/images/2/2b/Apple.jpg', label: 'one', value: 0 },
-    //     { img: 'https://assets.bonappetit.com/photos/57daf2c35a14a530086efae5/master/pass/green-apple-640.jpg', label: 'two', value: 1 },
-    //     { img: 'https://static.libertyprim.com/files/varietes/pomme-golden-large.jpg?1569321839', label: 'three', value: 2 },
-    // ]
+    const valueTemplate = (option: ImageSelectOption, props: DropdownProps) => {
+        if (option) {
+            return optionTemplate(option)
+        }
+
+        return (<span>{ props.placeholder }</span>)
+    }
 
 	return (
         <Dropdown
-            value={selectedOption}
-            onChange={(e) => setSelectedOption(e.value)}
-            options={ props.options }
-            optionLabel='name'
-            optionValue='name'
-            placeholder='Select opponent'
+            {...props}
             itemTemplate={optionTemplate}
+            valueTemplate={valueTemplate}
         />
 	)
 }
