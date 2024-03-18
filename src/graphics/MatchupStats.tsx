@@ -1,31 +1,48 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { useReplicant } from '@nodecg/react-hooks'
 
 import { StatsData } from '../extension/index'
 import { AssetOverlay } from '../components/AssetOverlay'
 import { OpponentLogo, WDGLogo } from '../components/TeamLogo'
+import { FlexColumn, FlexRow } from '../components/layout/Flexbox'
 
-const WDGImage = styled(WDGLogo)<{ color: string }>`
+const STATS_TO_DISPLAY = [
+	'WIN%',
+	'PTS',
+	'FG%',
+	'3P%',
+	'FT%',
+	'OREB',
+	'DREB',
+	'REB',
+	'TOV',
+	'STL',
+	'BLK'
+] as (keyof StatsData['teams'][0])[]
+
+const logoStyles = css`
 	position: absolute;
 	width: 250px;
 	height: 250px;
+	object-fit: contain;
+	filter: drop-shadow(15px 15px 5px #222);
+`
+
+const WDGImage = styled(WDGLogo)<{ color: string }>`
+	${logoStyles}
 	left: 900px;
 	top: 40px;
-	object-fit: contain;
 `
 
 const OpponentImage = styled(OpponentLogo)`
-	position: absolute;
-	width: 250px;
-	height: 250px;
+	${logoStyles}
 	left: 1500px;
 	top: 40px;
-	object-fit: contain;
 `
 
-export function MatchupStats() {
+export const MatchupStatsOverlay: React.FC = () => {
 	const queryParams = new URLSearchParams(window.location.search)
 	const backgroundType = queryParams.get('show')
 	let filter, color
@@ -47,47 +64,81 @@ export function MatchupStats() {
 		>
 			<WDGImage color={color} />
 			<OpponentImage />
-			<MatchupStatsData />
+			<MatchupStats />
 		</AssetOverlay>
 	)
 }
 
-function MatchupStatsData() {
+const StatColumn = styled(FlexColumn)`
+	position: absolute;
+	justify-content: space-evenly;
+	font-size: 0.5em;
+	width: 868px;
+	height: 629px;
+	top: 422px;
+	left: 900px;
+	line-height: 1em;
+	box-sizing: border-box;
+	padding: 25px 0;
+`
+
+const StatRow = styled(FlexRow)`
+	text-align: center;
+
+	& > span {
+		flex: 1 0 200px;
+	}
+
+	& > .stat-name {
+		color: white;
+		font-weight: 700;
+		flex: 0 0 172px;
+		text-shadow: 5px 5px 5px #000;
+		-webkit-text-stroke: 2px black;
+	}
+`
+
+type StatRowProps = {
+	wdgStat?: string
+	statName: string
+	oppStat?: string
+}
+
+const MatchupStat: React.FC<StatRowProps> = ({ wdgStat, statName, oppStat }) => {
+	return (
+		<StatRow>
+			<span>{wdgStat}</span>
+			<span className='stat-name'>{statName}</span>
+			<span>{oppStat}</span>
+		</StatRow>
+	)
+}
+
+const MatchupStats: React.FC = () => {
 	// @ts-expect-error This is an error with useReplicant that will be fixed in the next version
 	const [statsRep] = useReplicant<StatsData>('stats')
 
+	const statRows: Array<JSX.Element> = []
+
+	if (statsRep && statsRep.teams.length) {
+		STATS_TO_DISPLAY.forEach((statName) => {
+			statRows.push(
+				<MatchupStat
+					key={statName}
+					statName={statName}
+					wdgStat={statsRep.teams[0][statName]}
+					oppStat={statsRep.teams[1][statName]}
+				/>)
+		})
+	}
+
 	return (
-		<>
-			<div id="stats-col1" className="stats-col">
-				<div id="wdg-WIN%">{statsRep?.teams[0]['WIN%']}</div>
-				<div id="wdg-PTS">{statsRep?.teams[0]['PTS']}</div>
-				<div id="wdg-FG%">{statsRep?.teams[0]['FG%']}</div>
-				<div id="wdg-3P%">{statsRep?.teams[0]['3P%']}</div>
-				<div id="wdg-FT%">{statsRep?.teams[0]['FT%']}</div>
-				<div id="wdg-OREB">{statsRep?.teams[0]['OREB']}</div>
-				<div id="wdg-DREB">{statsRep?.teams[0]['DREB']}</div>
-				<div id="wdg-REB">{statsRep?.teams[0]['REB']}</div>
-				<div id="wdg-TOV">{statsRep?.teams[0]['TOV']}</div>
-				<div id="wdg-STL">{statsRep?.teams[0]['STL']}</div>
-				<div id="wdg-BLK">{statsRep?.teams[0]['BLK']}</div>
-			</div>
-			<div id="stats-col2" className="stats-col">
-				<div id="opp-WIN%">{statsRep?.teams[1]['WIN%']}</div>
-				<div id="opp-PTS">{statsRep?.teams[1]['PTS']}</div>
-				<div id="opp-FG%">{statsRep?.teams[1]['FG%']}</div>
-				<div id="opp-3P%">{statsRep?.teams[1]['3P%']}</div>
-				<div id="opp-FT%">{statsRep?.teams[1]['FT%']}</div>
-				<div id="opp-OREB">{statsRep?.teams[1]['OREB']}</div>
-				<div id="opp-DREB">{statsRep?.teams[1]['DREB']}</div>
-				<div id="opp-REB">{statsRep?.teams[1]['REB']}</div>
-				<div id="opp-TOV">{statsRep?.teams[1]['TOV']}</div>
-				<div id="opp-STL">{statsRep?.teams[1]['STL']}</div>
-				<div id="opp-BLK">{statsRep?.teams[1]['BLK']}</div>
-			</div>
-		</>
+		<StatColumn>
+			{statRows}
+		</StatColumn>
 	)
 }
 
 // Bootstrap stuff
 const root = createRoot(document.getElementById('root')!)
-root.render(<MatchupStats />)
+root.render(<MatchupStatsOverlay />)

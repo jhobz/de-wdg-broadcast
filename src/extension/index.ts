@@ -20,40 +20,40 @@ export type TeamInfo = {
 	hexCode: string
 }
 
-type TeamStatsRowData = {
-	TEAM?: string
-	WINS?: string
-	LOSSES?: string
-	'WIN%'?: string
-	PTS?: string
-	'FG%'?: string
-	'3P%'?: string
-	'FT%'?: string
-	OREB?: string
-	DREB?: string
-	REB?: string
-	AST?: string
-	TOV?: string
-	STL?: string
-	BLK?: string
-}
+type TeamStatsRowData = Partial<{
+	TEAM: string
+	WINS: string
+	LOSSES: string
+	'WIN%': string
+	PTS: string
+	'FG%': string
+	'3P%': string
+	'FT%': string
+	OREB: string
+	DREB: string
+	REB: string
+	AST: string
+	TOV: string
+	STL: string
+	BLK: string
+}>
 
-export type PlayerStatsData = {
-	AGE?: string
-	POS?: string
-	GAMES?: string
-	PTS?: string
-	'FG%'?: string
-	'3P%'?: string
-	'FT%'?: string
-	OREB?: string
-	DREB?: string
-	REB?: string
-	AST?: string
-	TOV?: string
-	STL?: string
-	BLK?: string
-}
+export type PlayerStatsData = Partial<{
+	AGE: string
+	POS: string
+	GAMES: string
+	PTS: string
+	'FG%': string
+	'3P%': string
+	'FT%': string
+	OREB: string
+	DREB: string
+	REB: string
+	AST: string
+	TOV: string
+	STL: string
+	BLK: string
+}>
 
 export type StatsData = {
 	teams: TeamStatsRowData[]
@@ -120,9 +120,12 @@ async function loadStatsFromGoogle(doc: GoogleSpreadsheet) {
 	await doc.loadInfo()
 	const teamSheet = doc.sheetsById[GSHEET_TEAM_COMPARISON_ID]
 	const teamRows = await teamSheet.getRows<TeamStatsRowData>()
-	stats.teams.push(teamRows[0].toObject())
-	if (teamRows[1]) {
-		stats.teams.push(teamRows[1].toObject())
+
+	if (teamRows && teamRows.length >= 2) {
+		stats.teams.push(teamRows[0].toObject())
+		if (teamRows[1]) {
+			stats.teams.push(teamRows[1].toObject())
+		}
 	}
 
 	const playerSheet = doc.sheetsById[GSHEET_WDG_PLAYERS_ID]
