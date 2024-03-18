@@ -13,6 +13,8 @@ const GSHEET_PLAYER_COMPARISON_ID = 282506544
 const GSHEET_WDG_PLAYERS_ID = 2122230946
 const GSHEET_TEAM_INFO_ID = 2074558796
 
+let logger: NodeCG.Logger
+
 // TODO: Move this stuff to the graphics and import it? Might require waiting until useReplicant branch is merged. See how ASM does it.
 export type TeamInfo = {
 	team: string
@@ -78,21 +80,27 @@ type GoogleConfig = {
 const STATS_SHEET_ID = '1je1brcelW1SDgeuTFsS9ulsyiuNlfe5trZndqDd9kfQ'
 
 module.exports = function (nodecg: NodeCG.ServerAPI) {
+	logger = nodecg.log
+
 	const googleCreds = nodecg.bundleConfig.google as GoogleConfig
 
+	const googleStatusRep = nodecg.Replicant<boolean>('googleStatus')
 	const statsRep = nodecg.Replicant<StatsData>('stats')
 	const teamsRep = nodecg.Replicant<TeamInfo[]>('teams')
 	const opponentRep = nodecg.Replicant<string>('opponent')
 
 	const mainDoc = setupGoogle(googleCreds)
+	googleStatusRep.value = false
+
 	loadStatsFromGoogle(mainDoc).then((stats) => {
 		statsRep.value = stats
-		console.log('Successfully loaded stats from Google Spreadsheet')
+		nodecg.log.info('Successfully loaded stats from Google Spreadsheet')
 	})
 
 	loadTeamsFromGoogle(mainDoc).then((teams) => {
+		googleStatusRep.value = true
 		teamsRep.value = teams
-		console.log('Successfully loaded team info from Google Spreadsheet')
+		nodecg.log.info('Successfully loaded team info from Google Spreadsheet')
 	})
 
 	if (!opponentRep.value) {
@@ -102,10 +110,31 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 	}
 
 	nodecg.listenFor('loadStats', () => {
-		nodecg.log.info('loadStats')
+		nodecg.log.info('Refreshing data from Google Spreadsheet')
+		googleStatusRep.value = false
+
 		loadStatsFromGoogle(mainDoc).then((newStats) => {
+			googleStatusRep.value = true
 			statsRep.value = newStats
 		})
+	})
+
+	opponentRep.on('change', async (newOpponent) => {
+		const validTeams = teamsRep.value?.map((teamInfo) => {
+			return teamInfo.team
+		})
+
+		if (!validTeams || !validTeams.length) {
+			logger.error('Could not determine list of valid teams when trying to write to Google Sheet.')
+			return
+		}
+
+		if (!newOpponent || !validTeams.includes(newOpponent)) {
+			logger.error('Tried to send invalid team to Google Sheet!')
+			return
+		}
+
+		statsRep.value = await setTeamComparisonInGoogle(mainDoc, newOpponent)
 	})
 }
 
@@ -165,4 +194,16 @@ async function loadTeamsFromGoogle(doc: GoogleSpreadsheet) {
 	})
 
 	return teams
+}
+
+async function setTeamComparisonInGoogle(doc: GoogleSpreadsheet, newTeam: string) {
+	await doc.loadInfo()
+	const teamSheet = doc.sheetsById[GSHEET_TEAM_COMPARISON_ID]
+	await teamSheet.loadCells('A2:B3')
+	const opponentCell = teamSheet.getCellByA1('A3')
+
+	opponentCell.value = newTeam
+	await teamSheet.saveUpdatedCells()
+
+	return await loadStatsFromGoogle(doc)
 }

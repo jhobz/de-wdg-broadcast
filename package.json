@@ -121,6 +121,7 @@
     "@types/react-dom": "^18.2.22",
     "google-auth-library": "^9.6.3",
     "google-spreadsheet": "^4.1.1",
+    "primeicons": "^6.0.1",
     "primereact": "^10.5.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
