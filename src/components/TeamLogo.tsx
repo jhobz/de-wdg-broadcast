@@ -9,6 +9,7 @@ type TeamLogoProps = {
 export const TeamLogo: React.FC<TeamLogoProps> = ({ className, team }) => {
 	// @ts-expect-error This is an error with useReplicant that will be fixed in the next version
 	const [teamLogos] = useReplicant<NodeCG.AssetFile[]>('assets:team-logos')
+	console.log(team)
 
 	const teamLogo = teamLogos?.find((asset) => {
 		return asset.name.includes(team.replaceAll(' ', '_'))
@@ -19,9 +20,11 @@ export const TeamLogo: React.FC<TeamLogoProps> = ({ className, team }) => {
 	)
 }
 
-export const WDGLogo: React.FC<{ className?: string }> = ({ className }) => {
+export const WDGLogo: React.FC<{ className?: string, color?: 'red' | 'white' }> = ({ className, color }) => {
+	const fileColor = `Wizards District Gaming Primary Icon${color === 'white' ? ' White' : ''}`
+
     return (
-        <TeamLogo className={className} team='Wizards District Gaming Primary Icon White' />
+        <TeamLogo className={className} team={fileColor} />
     )
 }
 

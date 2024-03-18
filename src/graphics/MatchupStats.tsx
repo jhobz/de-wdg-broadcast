@@ -7,28 +7,45 @@ import { StatsData } from '../extension/index'
 import { AssetOverlay } from '../components/AssetOverlay'
 import { OpponentLogo, WDGLogo } from '../components/TeamLogo'
 
-const WDGImage = styled(WDGLogo)`
+const WDGImage = styled(WDGLogo)<{ color: string }>`
+	position: absolute;
 	width: 250px;
 	height: 250px;
-	position: absolute;
 	left: 900px;
 	top: 40px;
 	object-fit: contain;
 `
 
 const OpponentImage = styled(OpponentLogo)`
+	position: absolute;
 	width: 250px;
 	height: 250px;
-	position: absolute;
 	left: 1500px;
 	top: 40px;
 	object-fit: contain;
 `
 
 export function MatchupStats() {
+	const queryParams = new URLSearchParams(window.location.search)
+	const backgroundType = queryParams.get('show')
+	let filter, color
+	switch (backgroundType) {
+		case 'pg':
+			filter = 'TailGate'	
+			color = 'red'
+			break
+		default:
+			filter = 'Gameday'
+			color = 'white'
+			break
+	}
+
 	return (
-		<AssetOverlay assetName='matchup-stats-overlay'>
-			<WDGImage />
+		<AssetOverlay
+			assetName='matchup-stats-overlay'
+			assetFilter={filter}
+		>
+			<WDGImage color={color} />
 			<OpponentImage />
 			<MatchupStatsData />
 		</AssetOverlay>
