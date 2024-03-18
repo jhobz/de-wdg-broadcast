@@ -80,22 +80,31 @@ const STATS_SHEET_ID = '1je1brcelW1SDgeuTFsS9ulsyiuNlfe5trZndqDd9kfQ'
 module.exports = function (nodecg: NodeCG.ServerAPI) {
 	const googleCreds = nodecg.bundleConfig.google as GoogleConfig
 
-	const statsReplicant = nodecg.Replicant('stats')
-	const teamsReplicant = nodecg.Replicant('teams')
+	const statsRep = nodecg.Replicant<StatsData>('stats')
+	const teamsRep = nodecg.Replicant<TeamInfo[]>('teams')
+	const opponentRep = nodecg.Replicant<string>('opponent')
 
 	const mainDoc = setupGoogle(googleCreds)
 	loadStatsFromGoogle(mainDoc).then((stats) => {
-		statsReplicant.value = stats
+		statsRep.value = stats
+		console.log('Successfully loaded stats from Google Spreadsheet')
 	})
 
 	loadTeamsFromGoogle(mainDoc).then((teams) => {
-		teamsReplicant.value = teams
+		teamsRep.value = teams
+		console.log('Successfully loaded team info from Google Spreadsheet')
 	})
+
+	if (!opponentRep.value) {
+		if (statsRep.value && statsRep.value.teams.length >= 2) {
+			opponentRep.value = statsRep.value.teams[1].TEAM
+		}
+	}
 
 	nodecg.listenFor('loadStats', () => {
 		nodecg.log.info('loadStats')
 		loadStatsFromGoogle(mainDoc).then((newStats) => {
-			statsReplicant.value = newStats
+			statsRep.value = newStats
 		})
 	})
 }
@@ -154,7 +163,6 @@ async function loadTeamsFromGoogle(doc: GoogleSpreadsheet) {
 			hexCode: item['Hex Code']
 		}
 	})
-	console.log(teams)
 
 	return teams
 }
