@@ -1,5 +1,6 @@
 import type NodeCG from '@nodecg/types'
 
+import OBSWebSocket, { EventSubscription } from 'obs-websocket-js'
 import { GoogleSpreadsheet, GoogleSpreadsheetRow } from 'google-spreadsheet'
 import { JWT } from 'google-auth-library'
 
@@ -79,15 +80,26 @@ type GoogleConfig = {
 
 const STATS_SHEET_ID = '1je1brcelW1SDgeuTFsS9ulsyiuNlfe5trZndqDd9kfQ'
 
-module.exports = function (nodecg: NodeCG.ServerAPI) {
+module.exports = async function (nodecg: NodeCG.ServerAPI) {
 	logger = nodecg.log
 
+	const obs = new OBSWebSocket()
 	const googleCreds = nodecg.bundleConfig.google as GoogleConfig
 
+	const obsStatusRep = nodecg.Replicant<boolean>('obsStatus')
 	const googleStatusRep = nodecg.Replicant<boolean>('googleStatus')
 	const statsRep = nodecg.Replicant<StatsData>('stats')
 	const teamsRep = nodecg.Replicant<TeamInfo[]>('teams')
 	const opponentRep = nodecg.Replicant<string>('opponent')
+
+	try {
+		const { obsWebSocketVersion, negotiatedRpcVersion } = await connectToObs(obs)
+		obsStatusRep.value = true
+		logger.info(`Connected to OBS via ${obsWebSocketVersion} (using RPC ${negotiatedRpcVersion})`)
+	} catch (e: unknown) {
+		obsStatusRep.value = false
+		logger.error('Failed to connect to OBS', e)
+	}
 
 	const mainDoc = setupGoogle(googleCreds)
 	googleStatusRep.value = false
@@ -135,6 +147,12 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 		}
 
 		statsRep.value = await setTeamComparisonInGoogle(mainDoc, newOpponent)
+	})
+}
+
+function connectToObs(obs: OBSWebSocket) {
+	return obs.connect('ws://192.168.1.222:4455', 'passwordThatShouldBeInAKeyFile', {
+		rpcVersion: 1
 	})
 }
 

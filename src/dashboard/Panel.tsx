@@ -10,6 +10,7 @@ import { FlexRow } from '../components/layout/Flexbox'
 
 export function Panel() {
 	const [isConnectedToGoogle] = useReplicant<boolean>('googleStatus')
+	const [isConnectedToObs] = useReplicant<boolean>('obsStatus')
 
 	const loadStats = () => {
 		nodecg.sendMessage('loadStats')
@@ -18,6 +19,7 @@ export function Panel() {
 	return (
 		<div className='Panel'>
 			<div>
+				<p>{ isConnectedToObs ? 'Connected to OBS websocket!' : 'Awaiting connection to OBS...' }</p>
 				<FlexRow align='center' gap='1rem' style={{width: 300}}>
 					<Button onClick={loadStats} icon='pi pi-refresh'></Button>
 					<span>{ isConnectedToGoogle ? 'Stats loaded successfully!' : 'Connecting to stats sheet...' }</span>
