@@ -1,6 +1,6 @@
 import type NodeCG from '@nodecg/types'
 
-import OBSWebSocket, { EventSubscription } from 'obs-websocket-js'
+import OBSWebSocket from 'obs-websocket-js'
 import { GoogleSpreadsheet, GoogleSpreadsheetRow } from 'google-spreadsheet'
 import { JWT } from 'google-auth-library'
 
@@ -92,15 +92,28 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 	const teamsRep = nodecg.Replicant<TeamInfo[]>('teams')
 	const opponentRep = nodecg.Replicant<string>('opponent')
 
-	setUpObsConnectionInterval(obsStatusRep.value as boolean, obs)
-	// const { obsWebSocketVersion, negotiatedRpcVersion } = tryToConnectToObs(obs)
-	// if (obsWebSocketVersion) {
-	// 	obsStatusRep.value = true
-	// 	logger.info(`Connected to OBS via ${obsWebSocketVersion} (using RPC ${negotiatedRpcVersion})`)
-	// } else {
-	// 	obsStatusRep.value = false
-	// 	logger.error('Failed to connect to OBS')
-	// }
+	obsStatusRep.value = false
+
+	const connectToObs = async () => {
+		try {
+			const {obsWebSocketVersion, negotiatedRpcVersion} = await obs.connect('ws://192.168.217.229:4455', 'passwordThatShouldBeInAKeyFile', {
+				rpcVersion: 1
+			})
+			obsStatusRep.value = true
+			logger.info(`Connected to OBS via ${obsWebSocketVersion} (using RPC ${negotiatedRpcVersion})`)
+			const response = await obs.call('GetSceneItemList', { sceneName: 'Matchup Graphic (VO)'})
+			logger.info(response)
+			const si = response.sceneItems[0]
+			const source = await obs.call('GetInputSettings', { inputName: si.sourceName as string})
+			logger.info('source', source)
+		} catch (e: unknown) {
+			obsStatusRep.value = false
+			logger.error('Failed to connect to OBS\n', e)
+			setTimeout(connectToObs, 5000)
+		}
+	}
+
+	connectToObs()
 
 	const mainDoc = setupGoogle(googleCreds)
 	googleStatusRep.value = false
@@ -149,26 +162,6 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 
 		statsRep.value = await setTeamComparisonInGoogle(mainDoc, newOpponent)
 	})
-}
-
-function setUpObsConnectionInterval(status: boolean, obs: OBSWebSocket) {
-	const interval = setInterval(async () => {
-		try {
-			const {obsWebSocketVersion, negotiatedRpcVersion} = await obs.connect('ws://192.168.1.222:4455', 'passwordThatShouldBeInAKeyFile', {
-				rpcVersion: 1
-			})
-			status = true
-			logger.info(`Connected to OBS via ${obsWebSocketVersion} (using RPC ${negotiatedRpcVersion})`)
-			clearTimeout(interval)
-		} catch (e) {
-			status = false
-			logger.error(e)
-		}
-	}, 5000)
-
-}
-
-async function tryToConnectToObs(obs: OBSWebSocket) {
 }
 
 function setupGoogle(creds: GoogleConfig) {
