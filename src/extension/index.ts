@@ -80,7 +80,7 @@ type GoogleConfig = {
 
 const STATS_SHEET_ID = '1je1brcelW1SDgeuTFsS9ulsyiuNlfe5trZndqDd9kfQ'
 
-module.exports = async function (nodecg: NodeCG.ServerAPI) {
+module.exports = function (nodecg: NodeCG.ServerAPI) {
 	logger = nodecg.log
 
 	const obs = new OBSWebSocket()
@@ -92,14 +92,15 @@ module.exports = async function (nodecg: NodeCG.ServerAPI) {
 	const teamsRep = nodecg.Replicant<TeamInfo[]>('teams')
 	const opponentRep = nodecg.Replicant<string>('opponent')
 
-	try {
-		const { obsWebSocketVersion, negotiatedRpcVersion } = await connectToObs(obs)
-		obsStatusRep.value = true
-		logger.info(`Connected to OBS via ${obsWebSocketVersion} (using RPC ${negotiatedRpcVersion})`)
-	} catch (e: unknown) {
-		obsStatusRep.value = false
-		logger.error('Failed to connect to OBS', e)
-	}
+	setUpObsConnectionInterval(obsStatusRep.value as boolean, obs)
+	// const { obsWebSocketVersion, negotiatedRpcVersion } = tryToConnectToObs(obs)
+	// if (obsWebSocketVersion) {
+	// 	obsStatusRep.value = true
+	// 	logger.info(`Connected to OBS via ${obsWebSocketVersion} (using RPC ${negotiatedRpcVersion})`)
+	// } else {
+	// 	obsStatusRep.value = false
+	// 	logger.error('Failed to connect to OBS')
+	// }
 
 	const mainDoc = setupGoogle(googleCreds)
 	googleStatusRep.value = false
@@ -150,10 +151,24 @@ module.exports = async function (nodecg: NodeCG.ServerAPI) {
 	})
 }
 
-function connectToObs(obs: OBSWebSocket) {
-	return obs.connect('ws://192.168.1.222:4455', 'passwordThatShouldBeInAKeyFile', {
-		rpcVersion: 1
-	})
+function setUpObsConnectionInterval(status: boolean, obs: OBSWebSocket) {
+	const interval = setInterval(async () => {
+		try {
+			const {obsWebSocketVersion, negotiatedRpcVersion} = await obs.connect('ws://192.168.1.222:4455', 'passwordThatShouldBeInAKeyFile', {
+				rpcVersion: 1
+			})
+			status = true
+			logger.info(`Connected to OBS via ${obsWebSocketVersion} (using RPC ${negotiatedRpcVersion})`)
+			clearTimeout(interval)
+		} catch (e) {
+			status = false
+			logger.error(e)
+		}
+	}, 5000)
+
+}
+
+async function tryToConnectToObs(obs: OBSWebSocket) {
 }
 
 function setupGoogle(creds: GoogleConfig) {
