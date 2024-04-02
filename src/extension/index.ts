@@ -3,6 +3,7 @@ import type NodeCG from '@nodecg/types'
 import OBSWebSocket from 'obs-websocket-js'
 import { GoogleSpreadsheet, GoogleSpreadsheetRow } from 'google-spreadsheet'
 import { JWT } from 'google-auth-library'
+import { ObsConnectionInfo } from '../types/schemas/index'
 
 /**
  * How to log to NodeCG console: 
@@ -87,25 +88,20 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 	const googleCreds = nodecg.bundleConfig.google as GoogleConfig
 
 	const obsStatusRep = nodecg.Replicant<boolean>('obsStatus')
+	const obsConnectionInfoRep = nodecg.Replicant<ObsConnectionInfo>('obsConnectionInfo')
 	const googleStatusRep = nodecg.Replicant<boolean>('googleStatus')
 	const statsRep = nodecg.Replicant<StatsData>('stats')
 	const teamsRep = nodecg.Replicant<TeamInfo[]>('teams')
 	const opponentRep = nodecg.Replicant<string>('opponent')
 
 	obsStatusRep.value = false
-
-	const connectToObs = async () => {
+	const connectToObs = async ({ address, password }: ObsConnectionInfo) => {
 		try {
-			const {obsWebSocketVersion, negotiatedRpcVersion} = await obs.connect('ws://192.168.217.229:4455', 'passwordThatShouldBeInAKeyFile', {
+			const {obsWebSocketVersion, negotiatedRpcVersion} = await obs.connect(address, password, {
 				rpcVersion: 1
 			})
-			obsStatusRep.value = true
 			logger.info(`Connected to OBS via ${obsWebSocketVersion} (using RPC ${negotiatedRpcVersion})`)
-			const response = await obs.call('GetSceneItemList', { sceneName: 'Matchup Graphic (VO)'})
-			logger.info(response)
-			const si = response.sceneItems[0]
-			const source = await obs.call('GetInputSettings', { inputName: si.sourceName as string})
-			logger.info('source', source)
+			obsStatusRep.value = true
 		} catch (e: unknown) {
 			obsStatusRep.value = false
 			logger.error('Failed to connect to OBS\n', e)
@@ -113,20 +109,35 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 		}
 	}
 
-	connectToObs()
+	const disconnectFromObs = async () => {
+		await obs.disconnect()
+		obsStatusRep.value = false
+	}
+
+	const doMore = async () => {
+		const response = await obs.call('GetSceneItemList', { sceneName: 'Matchup Graphic (VO)'})
+		logger.info(response)
+		const si = response.sceneItems[0]
+		const source = await obs.call('GetInputSettings', { inputName: si.sourceName as string})
+		logger.info('source', source)
+	}
+
+	if (obsConnectionInfoRep.value) {
+		connectToObs(obsConnectionInfoRep.value)
+	}
 
 	const mainDoc = setupGoogle(googleCreds)
 	googleStatusRep.value = false
 
 	loadStatsFromGoogle(mainDoc).then((stats) => {
 		statsRep.value = stats
-		nodecg.log.info('Successfully loaded stats from Google Spreadsheet')
+		logger.info('Successfully loaded stats from Google Spreadsheet')
 	})
 
 	loadTeamsFromGoogle(mainDoc).then((teams) => {
 		googleStatusRep.value = true
 		teamsRep.value = teams
-		nodecg.log.info('Successfully loaded team info from Google Spreadsheet')
+		logger.info('Successfully loaded team info from Google Spreadsheet')
 	})
 
 	if (!opponentRep.value) {
@@ -136,13 +147,23 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 	}
 
 	nodecg.listenFor('loadStats', () => {
-		nodecg.log.info('Refreshing data from Google Spreadsheet')
+		logger.info('Refreshing data from Google Spreadsheet')
 		googleStatusRep.value = false
 
 		loadStatsFromGoogle(mainDoc).then((newStats) => {
 			googleStatusRep.value = true
 			statsRep.value = newStats
 		})
+	})
+
+	nodecg.listenFor('obs:connect', () => {
+		if (obsConnectionInfoRep.value) {
+			connectToObs(obsConnectionInfoRep.value)
+		}
+	})
+
+	nodecg.listenFor('obs:disconnect', () => {
+		disconnectFromObs()
 	})
 
 	opponentRep.on('change', async (newOpponent) => {

@@ -59,6 +59,14 @@
         "file": "panel.html",
         "headerColor": "#525F78",
         "fullbleed": true
+      },
+      {
+        "name": "obsPanel",
+        "title": "OBS Websocket",
+        "file": "obs-connection.html",
+        "headerColor": "#000000",
+        "width": 3,
+        "workspace": "Remote Connections"
       }
     ],
     "graphics": [
