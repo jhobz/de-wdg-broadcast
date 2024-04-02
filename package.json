@@ -54,11 +54,25 @@
     "compatibleRange": "^2.0.0",
     "dashboardPanels": [
       {
-        "name": "panel",
-        "title": "| WDG Broadcast Dashboard",
-        "file": "panel.html",
+        "name": "status-panel",
+        "title": "Status",
+        "file": "status-panel.html",
         "headerColor": "#525F78",
-        "fullbleed": true
+        "width": 3
+      },
+      {
+        "name": "matchup-info-panel",
+        "title": "Matchup Info",
+        "file": "matchup-info-panel.html",
+        "headerColor": "#525F78",
+        "width": 4
+      },
+      {
+        "name": "rundownPanel",
+        "title": "Rundown Editor",
+        "file": "rundown-panel.html",
+        "width": 5,
+        "headerColor": "#525F78"
       },
       {
         "name": "obsPanel",

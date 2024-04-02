@@ -2,6 +2,8 @@ import React, { ChangeEvent, createRef, useEffect, useState } from 'react'
 import { useReplicant } from '@nodecg/react-hooks'
 import { InputTextarea } from 'primereact/inputtextarea'
 import { Button } from 'primereact/button'
+import { FlexRow } from '../components/layout/Flexbox'
+import styled from 'styled-components'
 
 const RUNDOWN_TEMPLATE = `Template for 8:15 PM start time. Update times and things in <brackets>, then delete this line.
 
@@ -52,9 +54,6 @@ const RUNDOWN_TEMPLATE = `Template for 8:15 PM start time. Update times and thin
 ## Content after game 4
 * <PROMO OR CONTENT AFTER GAME 4>
 
-## Content after game 5
-* <PROMO OR CONTENT AFTER GAME 5>
-
 ## END OF SERIES
 * Recap
 * Upcoming games
@@ -63,6 +62,12 @@ const RUNDOWN_TEMPLATE = `Template for 8:15 PM start time. Update times and thin
 `
 
 const MD_CHEAT_SHEET_LINK = 'https://www.markdownguide.org/cheat-sheet/'
+
+const RundownElement = styled.div`
+    .monospace {
+        font-family: monospace;
+    }
+`
 
 export const RundownEditor: React.FC = () => {
     const [rundownRep, setRundownRep] = useReplicant<string>('rundown')
@@ -85,13 +90,12 @@ export const RundownEditor: React.FC = () => {
     }
 
     return (
-        <div className='RundownEditor'>
-            <h1>Rundown Editor</h1>
-            <InputTextarea className='monospace' ref={textareaRef} value={rundownRep} onChange={onTextareaChange} rows={20} cols={70} />
-            <div className="flex flex-between">
+        <RundownElement>
+            <InputTextarea className='monospace' ref={textareaRef} value={rundownRep} onChange={onTextareaChange} rows={20} cols={68} />
+            <FlexRow justify='space-between'>
                 <Button onClick={writeTemplate}>Reset to Template</Button>
                 <p>This editor uses <a href={MD_CHEAT_SHEET_LINK}>Markdown</a> formatting.</p>
-            </div>
-        </div>
+            </FlexRow>
+        </RundownElement>
     )
 }

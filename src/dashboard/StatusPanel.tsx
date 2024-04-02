@@ -1,15 +1,14 @@
 import React from 'react'
+import { createRoot } from 'react-dom/client'
 import { Button } from 'primereact/button'
 import 'primereact/resources/themes/md-dark-indigo/theme.css'
 import 'primeicons/primeicons.css'
 
-import { OpponentSelector } from './OpponentSelector'
-import { RundownEditor } from './RundownEditor'
 import { useReplicant } from '@nodecg/react-hooks'
 import { FlexRow } from '../components/layout/Flexbox'
 import StatusIndicator from '../components/StatusIndicator'
 
-export function Panel() {
+export function StatusPanel() {
 	const [googleStatusRep] = useReplicant<boolean>('googleStatus')
 	const [obsStatusRep] = useReplicant<boolean>('obsStatus')
 
@@ -31,10 +30,11 @@ export function Panel() {
 					<Button onClick={loadStats} icon='pi pi-refresh'></Button>
 				</FlexRow>
 				<div>
-					<OpponentSelector />
 				</div>
 			</div>
-			<RundownEditor></RundownEditor>
 		</div>
 	)
 }
+
+const root = createRoot(document.getElementById('root')!)
+root.render(<StatusPanel />)
