@@ -55,7 +55,7 @@
     "dashboardPanels": [
       {
         "name": "panel",
-        "title": "Wizards District Gaming Broadcast Dashboard",
+        "title": "| WDG Broadcast Dashboard",
         "file": "panel.html",
         "headerColor": "#525F78",
         "fullbleed": true

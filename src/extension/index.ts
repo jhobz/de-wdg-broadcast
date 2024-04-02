@@ -18,6 +18,13 @@ const GSHEET_TEAM_INFO_ID = 2074558796
 let logger: NodeCG.Logger
 
 // TODO: Move this stuff to the graphics and import it? Might require waiting until useReplicant branch is merged. See how ASM does it.
+export type OBSInput = {
+	inputKind: string
+	inputName: string
+	inputUuid: string
+	unversionedInputKind: string
+}
+
 export type TeamInfo = {
 	team: string
 	primaryColor: null
@@ -89,6 +96,8 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 
 	const obsStatusRep = nodecg.Replicant<boolean>('obsStatus')
 	const obsConnectionInfoRep = nodecg.Replicant<ObsConnectionInfo>('obsConnectionInfo')
+	const obsVideoSourcesRep = nodecg.Replicant<OBSInput[]>('obsVideoSources')
+	const obsMatchupGraphicIdRep = nodecg.Replicant<string>('obsMatchupGraphicId')
 	const googleStatusRep = nodecg.Replicant<boolean>('googleStatus')
 	const statsRep = nodecg.Replicant<StatsData>('stats')
 	const teamsRep = nodecg.Replicant<TeamInfo[]>('teams')
@@ -100,8 +109,16 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 			const {obsWebSocketVersion, negotiatedRpcVersion} = await obs.connect(address, password, {
 				rpcVersion: 1
 			})
-			logger.info(`Connected to OBS via ${obsWebSocketVersion} (using RPC ${negotiatedRpcVersion})`)
+
 			obsStatusRep.value = true
+			logger.info(`Connected to OBS via ${obsWebSocketVersion} (using RPC ${negotiatedRpcVersion})`)
+
+			// Refresh list of media sources for Matchup Graphic assignment panel
+			const response = await obs.call('GetInputList')
+			const videoInputs = response.inputs.filter((input) => {
+				return input.inputKind === 'ffmpeg_source'
+			})
+			obsVideoSourcesRep.value = videoInputs as OBSInput[]
 		} catch (e: unknown) {
 			obsStatusRep.value = false
 			logger.error('Failed to connect to OBS\n', e)
@@ -114,12 +131,11 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 		obsStatusRep.value = false
 	}
 
-	const doMore = async () => {
-		const response = await obs.call('GetSceneItemList', { sceneName: 'Matchup Graphic (VO)'})
-		logger.info(response)
-		const si = response.sceneItems[0]
-		const source = await obs.call('GetInputSettings', { inputName: si.sourceName as string})
-		logger.info('source', source)
+	const debugObsTasks = async () => {
+		// const response = await obs.call('GetSceneItemList', { sceneName: 'Matchup Graphic (VO)'})
+		// const si = response.scenes[0]
+		// const source = await obs.call('GetInputSettings', { inputName: si.sourceName as string})
+		// logger.info('source', source)
 	}
 
 	if (obsConnectionInfoRep.value) {
@@ -146,6 +162,9 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 		}
 	}
 
+	// ========== LISTENERS ==========
+
+	// ---------- MESSAGES ----------
 	nodecg.listenFor('loadStats', () => {
 		logger.info('Refreshing data from Google Spreadsheet')
 		googleStatusRep.value = false
@@ -156,6 +175,7 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 		})
 	})
 
+	// *** OBS ***
 	nodecg.listenFor('obs:connect', () => {
 		if (obsConnectionInfoRep.value) {
 			connectToObs(obsConnectionInfoRep.value)
@@ -166,6 +186,11 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 		disconnectFromObs()
 	})
 
+	nodecg.listenFor('obs:debugTasks', () => {
+		debugObsTasks()
+	})
+
+	// ---------- CHANGE EVENTS ----------
 	opponentRep.on('change', async (newOpponent) => {
 		const validTeams = teamsRep.value?.map((teamInfo) => {
 			return teamInfo.team
@@ -182,6 +207,26 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 		}
 
 		statsRep.value = await setTeamComparisonInGoogle(mainDoc, newOpponent)
+
+		if (!obsMatchupGraphicIdRep.value) {
+			logger.warn('Matchup Graphic source not set in Remote Connections workspace. Skipping changing Matchup Graphic file.')
+			return
+		}
+
+		if (!obsStatusRep.value) {
+			logger.warn('Not connected to OBS. Skipping changing Matchup Graphic file.')
+			return
+		}
+
+		const source = await obs.call('GetInputSettings', { inputUuid: obsMatchupGraphicIdRep.value })
+		let baseURI = (source.inputSettings.local_file as string)
+		if (baseURI?.length) {
+			baseURI = baseURI.split('/').slice(0, -1).join('/')
+		}
+		const settings = {
+			local_file: `${baseURI}/WDG_VS_${newOpponent.replaceAll(' ', '_')}.mp4`
+		}
+		await obs.call('SetInputSettings', { inputUuid: obsMatchupGraphicIdRep.value, inputSettings: settings })
 	})
 }
 

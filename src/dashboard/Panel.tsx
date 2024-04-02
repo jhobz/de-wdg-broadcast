@@ -7,22 +7,28 @@ import { OpponentSelector } from './OpponentSelector'
 import { RundownEditor } from './RundownEditor'
 import { useReplicant } from '@nodecg/react-hooks'
 import { FlexRow } from '../components/layout/Flexbox'
+import StatusIndicator from '../components/StatusIndicator'
 
 export function Panel() {
-	const [isConnectedToGoogle] = useReplicant<boolean>('googleStatus')
-	const [isConnectedToObs] = useReplicant<boolean>('obsStatus')
+	const [googleStatusRep] = useReplicant<boolean>('googleStatus')
+	const [obsStatusRep] = useReplicant<boolean>('obsStatus')
 
 	const loadStats = () => {
 		nodecg.sendMessage('loadStats')
 	}
 
+	const doObsThings = () => {
+		nodecg.sendMessage('obs:debugTasks')
+	}
+
 	return (
 		<div className='Panel'>
 			<div>
-				<p>{ isConnectedToObs ? 'Connected to OBS websocket!' : 'Awaiting connection to OBS...' }</p>
+				<StatusIndicator status={!!obsStatusRep} okMessage='Connected to OBS' badMessage='Disconnected from OBS' />
+				<Button onClick={doObsThings}>Trigger OBS Debug Tasks</Button>
 				<FlexRow align='center' gap='1rem' style={{width: 300}}>
+					<StatusIndicator status={!!googleStatusRep} okMessage='Stats loaded successfully!' badMessage='Connecting to stats sheet...' />
 					<Button onClick={loadStats} icon='pi pi-refresh'></Button>
-					<span>{ isConnectedToGoogle ? 'Stats loaded successfully!' : 'Connecting to stats sheet...' }</span>
 				</FlexRow>
 				<div>
 					<OpponentSelector />
