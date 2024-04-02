@@ -122,7 +122,8 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 		} catch (e: unknown) {
 			obsStatusRep.value = false
 			logger.error('Failed to connect to OBS\n', e)
-			setTimeout(connectToObs, 5000)
+			// TODO: Add a checkbox or config setting for retrying connection
+			// setTimeout(connectToObs, 5000)
 		}
 	}
 
