@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Button } from 'primereact/button'
 import { InputText } from 'primereact/inputtext'
+import { Checkbox } from 'primereact/checkbox'
 import 'primereact/resources/themes/md-dark-indigo/theme.css'
 import 'primeicons/primeicons.css'
 
 import { useReplicant } from '@nodecg/react-hooks'
-import { FlexColumn } from '../components/layout/Flexbox'
+import { FlexColumn, FlexRow } from '../components/layout/Flexbox'
 import StatusIndicator from '../components/StatusIndicator'
 import { ObsConnectionInfo } from '../types/schemas/obsConnectionInfo'
 import styled from 'styled-components'
@@ -30,12 +31,14 @@ export function OBSConnectionPanel() {
 	const [obsMatchupGraphicRep, setObsMatchupGraphicRep] = useReplicant<string>('obsMatchupGraphicId')
 	const [obsAddress, setObsAddress] = useState<string>('')
 	const [obsPassword, setObsPassword] = useState<string>('')
+	const [obsReconnect, setObsReconnect] = useState<boolean>(false)
 	const [selectedSource, setSelectedSource] = useState<OBSInput>()
 
 	const onInputBlur = () => {
 		setObsConnectionInfoRep({
 			address: obsAddress,
-			password: obsPassword
+			password: obsPassword,
+			reconnect: obsReconnect
 		})
 	}
 
@@ -51,6 +54,7 @@ export function OBSConnectionPanel() {
 	useEffect(() => {
 		setObsAddress(obsConnectionInfoRep?.address || '')
 		setObsPassword(obsConnectionInfoRep?.password || '')
+		setObsReconnect(!!obsConnectionInfoRep?.reconnect)
 	}, [obsConnectionInfoRep])
 
 	useEffect(() => {
@@ -58,7 +62,6 @@ export function OBSConnectionPanel() {
 	}, [sourcesRep, obsMatchupGraphicRep])
 
 	useEffect(() => {
-		console.log(selectedSource)
 		if (!selectedSource) {
 			return
 		}
@@ -70,16 +73,20 @@ export function OBSConnectionPanel() {
 		<div className='ConnectionsPanel'>
 			<StatusIndicator status={!!obsStatusRep} okMessage='Connected to OBS' badMessage='Disconnected from OBS' />
 			<h4>Connection Info</h4>
-			<FlexColumn gap='1rem' align='flex-start'>
+			<FlexColumn gap='1em' align='flex-start'>
 				<InputGroup>
 					<InputText id='address' value={obsAddress} onChange={(e) => setObsAddress(e.target.value)} onBlur={onInputBlur} disabled={obsStatusRep} />
 					<label htmlFor='address'>Address</label>
 				</InputGroup>
 				<InputGroup>
-					<InputText id='password' value={obsPassword} onChange={(e) => setObsPassword(e.target.value)} onBlur={onInputBlur} disabled={obsStatusRep} />
+					<InputText id='password' type='password' value={obsPassword} onChange={(e) => setObsPassword(e.target.value)} onBlur={onInputBlur} disabled={obsStatusRep} />
 					<label htmlFor='password'>Password</label>
 				</InputGroup>
 				<Button onClick={onConnectButtonClick}>{obsStatusRep ? 'Disconnect' : 'Connect'}</Button>
+				<FlexRow gap='0.8em' align='flex-start'>
+					<Checkbox inputId='reconnect' checked={obsReconnect} onChange={(e) => setObsReconnect(!!e.checked)} onBlur={onInputBlur}></Checkbox>
+					<label htmlFor='reconnect'>Automatically attempt to reconnect (every 5s)?</label>
+				</FlexRow>
 			</FlexColumn>
 			<h4>Source Assignment</h4>
 			<FlexColumn gap='1rem'>

@@ -89,6 +89,8 @@ type GoogleConfig = {
 const STATS_SHEET_ID = '1je1brcelW1SDgeuTFsS9ulsyiuNlfe5trZndqDd9kfQ'
 
 module.exports = function (nodecg: NodeCG.ServerAPI) {
+	// Variable definitions
+
 	logger = nodecg.log
 
 	const obs = new OBSWebSocket()
@@ -103,15 +105,48 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 	const teamsRep = nodecg.Replicant<TeamInfo[]>('teams')
 	const opponentRep = nodecg.Replicant<string>('opponent')
 
+
+	// OBS stuff
+
+	const reconnectToObs = () => {
+		if (!obsConnectionInfoRep.value) {
+			logger.warn('Skipping OBS reconnect attempt: obsConnectionInfoRep is null or undefined')
+			setTimeout(reconnectToObs, 5000)
+			return
+		}
+
+		connectToObs(obsConnectionInfoRep.value)
+	}
+
+	obs.on('ConnectionClosed', (error) => {
+		// If we already know (reconnection attempts) then don't double-log
+		if (obsStatusRep.value === false) {
+			return
+		}
+
+		obsStatusRep.value = false
+		logger.warn('Disconnected from OBS. If unexpected, check for error below.')
+
+		// We don't want to attempt to reconnect if this was an intentional disconnect
+		if (!error || !error.message) {
+			return
+		}
+		
+		logger.error(error.message)
+		if (obsConnectionInfoRep.value?.reconnect) {
+			setTimeout(reconnectToObs, 5000)
+		}
+	})
+
 	obsStatusRep.value = false
 	const connectToObs = async ({ address, password }: ObsConnectionInfo) => {
 		try {
-			const {obsWebSocketVersion, negotiatedRpcVersion} = await obs.connect(address, password, {
+			const { obsWebSocketVersion, negotiatedRpcVersion } = await obs.connect(address, password, {
 				rpcVersion: 1
 			})
 
 			obsStatusRep.value = true
-			logger.info(`Connected to OBS via ${obsWebSocketVersion} (using RPC ${negotiatedRpcVersion})`)
+			logger.info(`Connected to OBS WebSocket v${obsWebSocketVersion} (using RPC ${negotiatedRpcVersion}).`)
 
 			// Refresh list of media sources for Matchup Graphic assignment panel
 			const response = await obs.call('GetInputList')
@@ -119,11 +154,14 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 				return input.inputKind === 'ffmpeg_source'
 			})
 			obsVideoSourcesRep.value = videoInputs as OBSInput[]
-		} catch (e: unknown) {
+		} catch (e) {
 			obsStatusRep.value = false
-			logger.error('Failed to connect to OBS\n', e)
-			// TODO: Add a checkbox or config setting for retrying connection
-			// setTimeout(connectToObs, 5000)
+			logger.error('Failed to connect to OBS.')
+			logger.error((e as Error).message)
+
+			if (obsConnectionInfoRep.value?.reconnect) {
+				setTimeout(reconnectToObs, 5000)
+			}
 		}
 	}
 
@@ -143,18 +181,21 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 		connectToObs(obsConnectionInfoRep.value)
 	}
 
+
+	// Google stuff
+
 	const mainDoc = setupGoogle(googleCreds)
 	googleStatusRep.value = false
 
 	loadStatsFromGoogle(mainDoc).then((stats) => {
 		statsRep.value = stats
-		logger.info('Successfully loaded stats from Google Spreadsheet')
+		logger.info('Successfully loaded stats from Google Spreadsheet.')
 	})
 
 	loadTeamsFromGoogle(mainDoc).then((teams) => {
 		googleStatusRep.value = true
 		teamsRep.value = teams
-		logger.info('Successfully loaded team info from Google Spreadsheet')
+		logger.info('Successfully loaded team info from Google Spreadsheet.')
 	})
 
 	if (!opponentRep.value) {
@@ -163,11 +204,11 @@ module.exports = function (nodecg: NodeCG.ServerAPI) {
 		}
 	}
 
-	// ========== LISTENERS ==========
+	// ========== NODECG LISTENERS ==========
 
 	// ---------- MESSAGES ----------
 	nodecg.listenFor('loadStats', () => {
-		logger.info('Refreshing data from Google Spreadsheet')
+		logger.info('Refreshing data from Google Spreadsheet.')
 		googleStatusRep.value = false
 
 		loadStatsFromGoogle(mainDoc).then((newStats) => {

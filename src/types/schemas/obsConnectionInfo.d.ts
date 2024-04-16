@@ -8,4 +8,5 @@
 export interface ObsConnectionInfo {
 	address: string;
 	password: string;
+	reconnect?: boolean;
 }
