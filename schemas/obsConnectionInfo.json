@@ -7,12 +7,16 @@
 		},
 		"password": {
 			"type": "string"
+		},
+		"reconnect": {
+			"type": "boolean"
 		}
 	},
 	"additionalProperties": false,
 	"required": ["address", "password"],
 	"default": {
 		"address": "",
-		"password": ""
+		"password": "",
+		"reconnect": true
 	}
 }
