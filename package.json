@@ -1,183 +1,200 @@
 {
-  "name": "de-wdg-broadcast",
-  "version": "0.1.0",
-  "description": "Bundle for Wizards District Gaming broadcasts",
-  "homepage": "https://github.com/jhobz/de-wdg-broadcast",
-  "author": {
-    "name": "Jeff Hobson",
-    "email": "jeffrey296@gmail.com",
-    "url": "https://github.com/jhobz"
-  },
-  "files": [
-    "dashboard",
-    "graphics",
-    "extension.js",
-    "extension"
-  ],
-  "keywords": [
-    "",
-    "nodecg-bundle"
-  ],
-  "nodecg": {
-    "assetCategories": [
-      {
-        "name": "pg-teamlineupstats",
-        "title": "Pre-Game Team Line Up Stats",
-        "allowedTypes": [
-          "jpg",
-          "jpeg",
-          "png",
-          "mov",
-          "mp4",
-          "webm"
-        ]
-      },
-      {
-        "name": "matchup-stats-overlay",
-        "title": "Matchup Stats Overlay",
-        "allowedTypes": [
-          "jpg",
-          "jpeg",
-          "png"
-        ]
-      },
-      {
-        "name": "team-logos",
-        "title": "NBA 2K League Team Logos",
-        "allowedTypes": [
-          "png",
-          "jpg",
-          "jpeg"
-        ]
-      }
+    "name": "de-wdg-broadcast",
+    "version": "0.1.0",
+    "description": "Bundle for Wizards District Gaming broadcasts",
+    "homepage": "https://github.com/jhobz/de-wdg-broadcast",
+    "author": {
+        "name": "Jeff Hobson",
+        "email": "jeffrey296@gmail.com",
+        "url": "https://github.com/jhobz"
+    },
+    "files": [
+        "dashboard",
+        "graphics",
+        "extension.js",
+        "extension"
     ],
-    "compatibleRange": "^2.0.0",
-    "dashboardPanels": [
-      {
-        "name": "status-panel",
-        "title": "Status",
-        "file": "status-panel.html",
-        "headerColor": "#525F78",
-        "width": 3
-      },
-      {
-        "name": "matchup-info-panel",
-        "title": "Matchup Info",
-        "file": "matchup-info-panel.html",
-        "headerColor": "#525F78",
-        "width": 4
-      },
-      {
-        "name": "rundownPanel",
-        "title": "Rundown Editor",
-        "file": "rundown-panel.html",
-        "width": 5,
-        "headerColor": "#525F78"
-      },
-      {
-        "name": "obsPanel",
-        "title": "OBS Websocket",
-        "file": "obs-connection.html",
-        "headerColor": "#000000",
-        "width": 3,
-        "workspace": "Remote Connections"
-      }
+    "keywords": [
+        "",
+        "nodecg-bundle"
     ],
-    "graphics": [
-      {
-        "file": "sample.html",
-        "width": 1920,
-        "height": 1080,
-        "singleInstance": false
-      },
-      {
-        "file": "matchupstats.html",
-        "width": 1920,
-        "height": 1080,
-        "singleInstance": false
-      },
-      {
-        "file": "playerstats.html",
-        "width": 1920,
-        "height": 1080,
-        "singleInstance": false
-      },
-      {
-        "file": "rundown.html",
-        "width": "auto",
-        "height": "auto",
-        "singleInstance": false
-      },
-      {
-        "file": "teamstats.html",
-        "width": 1920,
-        "height": 1080,
-        "singleInstance": false
-      }
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.5%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "scripts": {
-    "build": "node scripts/build.mjs --all",
-    "build:extension": "node scripts/build.mjs --extension",
-    "watch": "node scripts/build.mjs --all --watch",
-    "watch:browser": "node scripts/build.mjs --dashboard --graphics --watch",
-    "watch:schemas": "node scripts/build.mjs --schemas --watch",
-    "dev": "concurrently --kill-others \"npm run watch:schemas\" \"npm run watch:browser\" \"nodemon\"",
-    "generate-schema-types": "trash src/types/schemas && nodecg schema-types"
-  },
-  "dependencies": {
-    "@nodecg/react-hooks": "^1.0.1",
-    "@types/react": "^18.2.65",
-    "@types/react-dom": "^18.2.22",
-    "google-auth-library": "^9.6.3",
-    "google-spreadsheet": "^4.1.1",
-    "obs-websocket-js": "^5.0.5",
-    "primeicons": "^6.0.1",
-    "primereact": "^10.5.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-markdown": "^9.0.1",
-    "remark-gfm": "^4.0.0",
-    "styled-components": "^6.1.8",
-    "ts-node": "^10.9.2"
-  },
-  "devDependencies": {
-    "@nodecg/types": "^2.0.0",
-    "@parcel/config-default": "2.11.0",
-    "@parcel/core": "2.11.0",
-    "@parcel/reporter-cli": "2.11.0",
-    "@parcel/validator-typescript": "2.11.0",
-    "@types/node": "^18",
-    "@typescript-eslint/eslint-plugin": "^7.1.1",
-    "@typescript-eslint/parser": "^7.1.1",
-    "concurrently": "*",
-    "eslint": "^8.57.0",
-    "eslint-plugin-react": "^7.34.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "glob": "^10.2.7",
-    "nodecg-cli": "^8.6.8",
-    "nodemon": "*",
-    "prettier": "^3.2.5",
-    "process": "^0.11.10",
-    "trash-cli": "*",
-    "typescript": "5.3.3"
-  },
-  "@parcel/resolver-default": {
-    "packageExports": true
-  },
-  "repository": "git@github.com:jhobz/de-wdg-broadcast.git",
-  "license": "UNLICENSED",
-  "private": true
+    "nodecg": {
+        "assetCategories": [
+            {
+                "name": "pg-teamlineupstats",
+                "title": "Pre-Game Team Line Up Stats",
+                "allowedTypes": [
+                    "jpg",
+                    "jpeg",
+                    "png",
+                    "mov",
+                    "mp4",
+                    "webm"
+                ]
+            },
+            {
+                "name": "matchup-stats-overlay",
+                "title": "Matchup Stats Overlay",
+                "allowedTypes": [
+                    "jpg",
+                    "jpeg",
+                    "png"
+                ]
+            },
+            {
+                "name": "team-logos",
+                "title": "NBA 2K League Team Logos",
+                "allowedTypes": [
+                    "png",
+                    "jpg",
+                    "jpeg"
+                ]
+            },
+            {
+                "name": "gameplay-specials",
+                "title": "Gameplay Special Graphics",
+                "allowedTypes": [
+                    "gif",
+                    "mov",
+                    "mp4",
+                    "webm"
+                ]
+            }
+        ],
+        "compatibleRange": "^2.0.0",
+        "dashboardPanels": [
+            {
+                "name": "special-controls-panel",
+                "title": "Special Controls",
+                "file": "special-controls-panel.html",
+                "headerColor": "#525F78",
+                "width": 3
+            },
+            {
+                "name": "status-panel",
+                "title": "Status",
+                "file": "status-panel.html",
+                "headerColor": "#525F78",
+                "width": 3
+            },
+            {
+                "name": "matchup-info-panel",
+                "title": "Matchup Info",
+                "file": "matchup-info-panel.html",
+                "headerColor": "#525F78",
+                "width": 4
+            },
+            {
+                "name": "rundownPanel",
+                "title": "Rundown Editor",
+                "file": "rundown-panel.html",
+                "width": 5,
+                "headerColor": "#525F78"
+            },
+            {
+                "name": "obsPanel",
+                "title": "OBS Websocket",
+                "file": "obs-connection.html",
+                "headerColor": "#000000",
+                "width": 3,
+                "workspace": "Remote Connections"
+            }
+        ],
+        "graphics": [
+            {
+                "file": "gameplay.html",
+                "width": 1920,
+                "height": 1080,
+                "singleInstance": false
+            },
+            {
+                "file": "matchupstats.html",
+                "width": 1920,
+                "height": 1080,
+                "singleInstance": false
+            },
+            {
+                "file": "playerstats.html",
+                "width": 1920,
+                "height": 1080,
+                "singleInstance": false
+            },
+            {
+                "file": "rundown.html",
+                "width": "auto",
+                "height": "auto",
+                "singleInstance": false
+            },
+            {
+                "file": "teamstats.html",
+                "width": 1920,
+                "height": 1080,
+                "singleInstance": false
+            }
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.5%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    },
+    "scripts": {
+        "build": "node scripts/build.mjs --all",
+        "build:extension": "node scripts/build.mjs --extension",
+        "watch": "node scripts/build.mjs --all --watch",
+        "watch:browser": "node scripts/build.mjs --dashboard --graphics --watch",
+        "watch:schemas": "node scripts/build.mjs --schemas --watch",
+        "dev": "concurrently --kill-others \"npm run watch:schemas\" \"npm run watch:browser\" \"nodemon\"",
+        "generate-schema-types": "trash src/types/schemas && nodecg schema-types"
+    },
+    "dependencies": {
+        "@nodecg/react-hooks": "^1.0.1",
+        "@types/react": "^18.2.65",
+        "@types/react-dom": "^18.2.22",
+        "google-auth-library": "^9.6.3",
+        "google-spreadsheet": "^4.1.1",
+        "obs-websocket-js": "^5.0.5",
+        "primeicons": "^6.0.1",
+        "primereact": "^10.5.1",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "react-markdown": "^9.0.1",
+        "remark-gfm": "^4.0.0",
+        "styled-components": "^6.1.8",
+        "ts-node": "^10.9.2"
+    },
+    "devDependencies": {
+        "@nodecg/types": "^2.0.0",
+        "@parcel/config-default": "2.11.0",
+        "@parcel/core": "2.11.0",
+        "@parcel/reporter-cli": "2.11.0",
+        "@parcel/validator-typescript": "2.11.0",
+        "@types/node": "^18",
+        "@typescript-eslint/eslint-plugin": "^7.1.1",
+        "@typescript-eslint/parser": "^7.1.1",
+        "concurrently": "*",
+        "eslint": "^8.57.0",
+        "eslint-plugin-react": "^7.34.0",
+        "eslint-plugin-react-hooks": "^4.6.0",
+        "glob": "^10.2.7",
+        "nodecg-cli": "^8.6.8",
+        "nodemon": "*",
+        "prettier": "^3.2.5",
+        "process": "^0.11.10",
+        "trash-cli": "*",
+        "typescript": "5.3.3"
+    },
+    "@parcel/resolver-default": {
+        "packageExports": true
+    },
+    "repository": "git@github.com:jhobz/de-wdg-broadcast.git",
+    "license": "UNLICENSED",
+    "private": true
 }
