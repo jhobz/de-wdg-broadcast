@@ -1,46 +1,70 @@
-import React, { ChangeEvent, createRef, useEffect, useState } from 'react'
+import React, { ChangeEvent, useEffect, useState } from 'react'
 import { useReplicant } from '@nodecg/react-hooks'
 import { InputTextarea } from 'primereact/inputtextarea'
 import { Button } from 'primereact/button'
-import { FlexRow } from '../components/layout/Flexbox'
+import { Calendar } from 'primereact/calendar'
+import { FlexColumn, FlexRow } from '../components/layout/Flexbox'
 import styled from 'styled-components'
+import { Nullable } from 'primereact/ts-helpers'
 
-const RUNDOWN_TEMPLATE = `Template for 8:15 PM start time. Update times and things in <brackets>, then delete this line.
+const timeOptions: Intl.DateTimeFormatOptions = {
+    hour12: true,
+    hour: 'numeric',
+    minute: '2-digit',
+}
+
+const timeAdd = (
+    date: Date,
+    minutes: number,
+    returnDate?: boolean
+): string | Date => {
+    const MS_IN_MIN = 60000
+    const newDate = new Date(date.valueOf() + minutes * MS_IN_MIN)
+    return returnDate ? newDate : newDate.toLocaleTimeString([], timeOptions)
+}
+const add = timeAdd
+
+const generateRundownTemplate = (startTime: Date) => {
+    const start = add(startTime, 0)
+    const gameDayStart = add(startTime, -15, true) as Date
+    const preShowStart = add(gameDayStart, -60, true) as Date
+
+    return `Template generated for ${start} start time. Update things in <brackets>, then delete this line.
 
 
 # PRE-SHOW (50m)
 | Time | Segment | Length |
 | ---- | ------- | ------ |
-| 7:00 PM    | Stream Starting Soon loop | 10m |
-| 7:10 PM    | Intro video | 30s |
-| 7:10:30 PM | **Talent intro** | 30s |
-| 7:11 PM    | The Rewind | 5m |
-| 7:16 PM    | Standings, League Format, Schedule | 3m |
-| 7:19 PM    | <PLAYER> interview | 10m |
-| 7:29 PM    | **BRB** | 3m |
-| 7:32 PM    | McDonald's Gamer Bundle | 30s |
-| 7:32:30 PM | Tonight's Matchup | 7m |
-| 7:39 PM    | Jon Byrum handoff | 10m |
-| 7:49 PM    | **Talent outro** | 1m |
+| ${add(preShowStart, 0)} | Stream Starting Soon loop | 10m |
+| ${add(preShowStart, 10)} | Intro video | 30s |
+| ${add(preShowStart, 10.5)} | **Talent intro** | 30s |
+| ${add(preShowStart, 11)} | The Rewind | 5m |
+| ${add(preShowStart, 16)} | Standings, League Format, Schedule | 3m |
+| ${add(preShowStart, 19)} | <PLAYER> interview | 10m |
+| ${add(preShowStart, 29)} | **BRB** | 3m |
+| ${add(preShowStart, 32)} | McDonald's Gamer Bundle | 30s |
+| ${add(preShowStart, 32.5)} | Tonight's Matchup | 7m |
+| ${add(preShowStart, 39)} | Jon Byrum handoff | 10m |
+| ${add(preShowStart, 49)} | **Talent outro** | 1m |
 ---
 # BREAK (10m)
 | Time | Segment | Length |
 | ---- | ------- | ------ |
-| 7:50 PM | BRB scene. Pre-show is encouraged to run long. | 10m (or less) |
+| ${add(preShowStart, 50)} | BRB scene. Pre-show is encouraged to run long. | 10m (or less) |
 ---
 # GAME DAY
 | Time | Segment | Length |
 | ---- | ------- | ------ |
-| 8:00 PM    | Intro video | 20s |
-| 8:00:20 PM | **Talent intro** | 40s |
-| 8:01 PM    | General recap | 2m |
-| 8:03 PM    | Matchup discussion | 2m |
-| 8:05 PM    | Starting lineup | 90s |
-| 8:06:30 PM | 3v3 rules breakdown | 30s |
-| 8:07 PM    | Standings/bracket | 2m |
-| 8:09 PM    | <CONTENT PIECE> | 1m |
-| 8:10 PM    | Live look-in, player matchups to watch, other content, etc. | 5m |
-| 8:15 PM    | **GAME 1 START** |
+| ${add(gameDayStart, 0)} | Intro video | 20s |
+| ${add(gameDayStart, 0.5)} | **Talent intro** | 40s |
+| ${add(gameDayStart, 1)} | General recap | 2m |
+| ${add(gameDayStart, 3)} | Matchup discussion | 2m |
+| ${add(gameDayStart, 5)} | Starting lineup | 90s |
+| ${add(gameDayStart, 6.5)} | 3v3 rules breakdown | 30s |
+| ${add(gameDayStart, 7)} | Standings/bracket | 2m |
+| ${add(gameDayStart, 9)} | <CONTENT PIECE> | 1m |
+| ${add(gameDayStart, 10)} | Live look-in, player matchups to watch, other content, etc. | 5m |
+| ${start} | **GAME 1 START** |
 
 ## Content after game 1
 * <PROMO OR CONTENT AFTER GAME 1>
@@ -60,6 +84,7 @@ const RUNDOWN_TEMPLATE = `Template for 8:15 PM start time. Update times and thin
 * PROMO | Rivalry Series (if not done earlier)
 * Sign-off
 `
+}
 
 const MD_CHEAT_SHEET_LINK = 'https://www.markdownguide.org/cheat-sheet/'
 
@@ -71,31 +96,114 @@ const RundownElement = styled.div`
 
 export const RundownEditor: React.FC = () => {
     const [rundownRep, setRundownRep] = useReplicant<string>('rundown')
-    const [cursor, setCursor] = useState<number>(0)
-    const textareaRef = createRef<HTMLTextAreaElement>()
+    const [gameStartTime, setGameStartTime] = useState<Nullable<Date>>(
+        new Date('May 8, 2024 20:15:00')
+    )
+    const [markdownText, setMarkdownText] = useState<string>('')
 
-    // We need to keep track of the cursor position when using a replicant as our state
-    // or the editing experience is miserable.
     useEffect(() => {
-        textareaRef.current?.setSelectionRange(cursor, cursor)
-    }, [textareaRef, cursor])
+        if (rundownRep) {
+            setMarkdownText(rundownRep)
+        }
+    }, [rundownRep])
 
-    const onTextareaChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-        setCursor(e.target.selectionStart)
+    const onBlur = (e: ChangeEvent<HTMLTextAreaElement>) => {
+        console.log('onBlur')
         setRundownRep(e.target.value)
     }
 
     const writeTemplate = () => {
-        setRundownRep(RUNDOWN_TEMPLATE)
+        let time = gameStartTime
+        if (!time) {
+            time = new Date('May 8, 2024 20:15:00')
+            setGameStartTime(time)
+        }
+
+        setRundownRep(generateRundownTemplate(time))
     }
 
     return (
         <RundownElement>
-            <InputTextarea className='monospace' ref={textareaRef} value={rundownRep} onChange={onTextareaChange} rows={20} cols={68} />
-            <FlexRow justify='space-between'>
-                <Button onClick={writeTemplate}>Reset to Template</Button>
-                <p>This editor uses <a href={MD_CHEAT_SHEET_LINK}>Markdown</a> formatting.</p>
-            </FlexRow>
+            <FlexColumn justify="space-between" align="flex-start" gap="1rem">
+                <FlexRow gap="0.5rem">
+                    <FlexColumn
+                        justify="space-between"
+                        align="flex-start"
+                        gap="1rem"
+                    >
+                        <label htmlFor="timePicker">Match Start Time</label>
+                        <Calendar
+                            id="timePicker"
+                            value={gameStartTime}
+                            onChange={(e) => setGameStartTime(e.value)}
+                            hourFormat="12"
+                            timeOnly
+                        />
+                    </FlexColumn>
+                    <FlexColumn
+                        justify="space-between"
+                        align="flex-start"
+                        gap="1rem"
+                    >
+                        <label htmlFor="timePicker">Pre-Show Start Time</label>
+                        <Calendar
+                            id="timePicker"
+                            value={
+                                gameStartTime
+                                    ? (timeAdd(
+                                          gameStartTime,
+                                          -75,
+                                          true
+                                      ) as Date)
+                                    : null
+                            }
+                            onChange={(e) => setGameStartTime(e.value)}
+                            hourFormat="12"
+                            timeOnly
+                            disabled
+                        />
+                    </FlexColumn>
+                    <FlexColumn
+                        justify="space-between"
+                        align="flex-start"
+                        gap="1rem"
+                    >
+                        <label htmlFor="timePicker">GameDay Start Time</label>
+                        <Calendar
+                            id="timePicker"
+                            value={
+                                gameStartTime
+                                    ? (timeAdd(
+                                          gameStartTime,
+                                          -15,
+                                          true
+                                      ) as Date)
+                                    : null
+                            }
+                            onChange={(e) => setGameStartTime(e.value)}
+                            hourFormat="12"
+                            timeOnly
+                            disabled
+                        />
+                    </FlexColumn>
+                </FlexRow>
+                <InputTextarea
+                    className="monospace"
+                    value={markdownText}
+                    // @ts-expect-error I have absolutely no idea why this is throwing an error; it works fine
+                    onChange={(e) => setMarkdownText(e.target.value)}
+                    onBlur={onBlur}
+                    rows={20}
+                    cols={68}
+                />
+                <FlexRow justify="space-between" style={{ width: '100%' }}>
+                    <Button onClick={writeTemplate}>Reset Template</Button>
+                    <p>
+                        This editor uses{' '}
+                        <a href={MD_CHEAT_SHEET_LINK}>Markdown</a> formatting.
+                    </p>
+                </FlexRow>
+            </FlexColumn>
         </RundownElement>
     )
 }
