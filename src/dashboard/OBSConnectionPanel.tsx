@@ -86,7 +86,6 @@ export function OBSConnectionPanel() {
                     <InputText
                         id="address"
                         value={obsAddress}
-                        // @ts-expect-error I have absolutely no idea why this is throwing an error; it works fine
                         onChange={(e) => setObsAddress(e.target.value)}
                         onBlur={onInputBlur}
                         disabled={obsStatusRep}
@@ -98,7 +97,6 @@ export function OBSConnectionPanel() {
                         id="password"
                         type="password"
                         value={obsPassword}
-                        // @ts-expect-error I have absolutely no idea why this is throwing an error; it works fine
                         onChange={(e) => setObsPassword(e.target.value)}
                         onBlur={onInputBlur}
                         disabled={obsStatusRep}

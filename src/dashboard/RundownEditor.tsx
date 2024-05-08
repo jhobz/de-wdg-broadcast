@@ -190,7 +190,6 @@ export const RundownEditor: React.FC = () => {
                 <InputTextarea
                     className="monospace"
                     value={markdownText}
-                    // @ts-expect-error I have absolutely no idea why this is throwing an error; it works fine
                     onChange={(e) => setMarkdownText(e.target.value)}
                     onBlur={onBlur}
                     rows={20}
