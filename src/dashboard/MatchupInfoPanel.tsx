@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client'
 import { OpponentSelector } from './OpponentSelector'
 import 'primereact/resources/themes/md-dark-indigo/theme.css'
 import { FlexColumn } from '../components/layout/Flexbox'
+import { PlayerSelector } from './PlayerSelector'
+
+const wdgPlayers = ['Just Awkward', 'Newdini', 'Type', 'Benzo', 'BRich']
 
 export default function MatchupInfoPanel() {
     return (
@@ -25,6 +28,8 @@ export default function MatchupInfoPanel() {
                 <br />
                 <br />
             </p>
+            <PlayerSelector players={wdgPlayers} />
+            <PlayerSelector />
         </FlexColumn>
     )
 }

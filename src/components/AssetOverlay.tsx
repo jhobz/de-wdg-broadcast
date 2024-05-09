@@ -11,7 +11,7 @@ const Background = styled.div<{ $url: string }>`
     background: url(${(props) => props.$url});
 `
 
-type OverlayProps = {
+interface OverlayProps extends React.HTMLAttributes<HTMLDivElement> {
     assetName: string
     assetFilter?: string
     children?: React.ReactNode
@@ -21,13 +21,18 @@ export const AssetOverlay: React.FC<OverlayProps> = ({
     assetName,
     assetFilter,
     children,
+    ...props
 }) => {
     // @ts-expect-error This is an error with useReplicant that will be fixed in the next version
     const [assets] = useReplicant<NodeCG.AssetFile[]>('assets:' + assetName)
 
     const url = getAssetUrl(assets, assetFilter)
 
-    return <Background $url={url}>{children}</Background>
+    return (
+        <Background $url={url} {...props}>
+            {children}
+        </Background>
+    )
 }
 
 const getAssetUrl = (

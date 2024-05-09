@@ -42,6 +42,24 @@
                 ]
             },
             {
+                "name": "player-stat-comparison-overlay",
+                "title": "Player vs. Player Overlay",
+                "allowedTypes": [
+                    "jpg",
+                    "jpeg",
+                    "png"
+                ]
+            },
+            {
+                "name": "player-photos",
+                "title": "Player Photos",
+                "allowedTypes": [
+                    "png",
+                    "jpg",
+                    "jpeg"
+                ]
+            },
+            {
                 "name": "team-logos",
                 "title": "NBA 2K League Team Logos",
                 "allowedTypes": [
@@ -115,6 +133,12 @@
             },
             {
                 "file": "playerstats.html",
+                "width": 1920,
+                "height": 1080,
+                "singleInstance": false
+            },
+            {
+                "file": "playervsplayer.html",
                 "width": 1920,
                 "height": 1080,
                 "singleInstance": false
