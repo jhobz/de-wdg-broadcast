@@ -1,38 +1,27 @@
 import React from 'react'
-import { createRoot } from 'react-dom/client'
 import { OpponentSelector } from './OpponentSelector'
 import 'primereact/resources/themes/md-dark-indigo/theme.css'
-import { FlexColumn } from '../components/layout/Flexbox'
+import { FlexColumn, FlexRow } from '../components/layout/Flexbox'
 import { PlayerSelector } from './PlayerSelector'
 
 const wdgPlayers = ['Just Awkward', 'Newdini', 'Type', 'Benzo', 'BRich']
 
-export default function MatchupInfoPanel() {
+export const MatchupInfoPanel: React.FC = () => {
     return (
-        <FlexColumn>
-            <p>Opponent</p>
-            <OpponentSelector />
+        <FlexColumn gap="1rem">
+            <h3>Opponent</h3>
+            <OpponentSelector filter />
+            <h3>Player Comparison</h3>
+            <FlexRow align="center" gap="1rem">
+                <PlayerSelector players={wdgPlayers} filter />
+                <p>vs.</p>
+                <PlayerSelector filter />
+            </FlexRow>
             <p>
-                <br />
-                <br />
-                <br />
-                <br />
-                <br />
-                <br />
-                <br />
-                <br />
-                <br />
-                <br />
-                <br />
-                <br />
-                <br />
-                <br />
+                Use the controls above to automatically update OBS sources and
+                cells within the Google Spreadsheet &quot;database&quot; for
+                stats and team/player information.
             </p>
-            <PlayerSelector players={wdgPlayers} />
-            <PlayerSelector />
         </FlexColumn>
     )
 }
-
-const root = createRoot(document.getElementById('root')!)
-root.render(<MatchupInfoPanel />)

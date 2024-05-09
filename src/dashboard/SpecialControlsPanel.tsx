@@ -1,13 +1,13 @@
 import React from 'react'
-import { createRoot } from 'react-dom/client'
 import 'primereact/resources/themes/md-dark-indigo/theme.css'
 import { Button } from 'primereact/button'
 import { useReplicant } from '@nodecg/react-hooks'
 import NodeCG from '@nodecg/types'
+import { EvenGrid } from '../components/layout/Flexbox'
 
 const SPECIAL_ASSET_NAME = 'gameplay-specials'
 
-export default function SpecialControlsPanel() {
+export const SpecialControlsPanel: React.FC = () => {
     // @ts-expect-error This is an error with useReplicant that will be fixed in the next version
     const [assetsRep] = useReplicant<NodeCG.AssetFile[]>(
         'assets:' + SPECIAL_ASSET_NAME
@@ -20,6 +20,7 @@ export default function SpecialControlsPanel() {
     const buttons = assetsRep.map((asset) => {
         return (
             <Button
+                style={{ minWidth: 'min-content' }}
                 key={asset.name}
                 onClick={(e) => {
                     onSpecialClick(e.currentTarget.innerText)
@@ -34,8 +35,9 @@ export default function SpecialControlsPanel() {
         nodecg.sendMessage('playSpecial', name)
     }
 
-    return <>{buttons}</>
+    return (
+        <EvenGrid rows={3} cols={3} gap="0.5rem">
+            {buttons}
+        </EvenGrid>
+    )
 }
-
-const root = createRoot(document.getElementById('root')!)
-root.render(<SpecialControlsPanel />)

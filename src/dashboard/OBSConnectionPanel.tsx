@@ -74,7 +74,7 @@ export function OBSConnectionPanel() {
     }, [selectedSource, setObsMatchupGraphicRep])
 
     return (
-        <div className="ConnectionsPanel">
+        <FlexColumn className="ConnectionsPanel" gap="0.8rem">
             <StatusIndicator
                 status={!!obsStatusRep}
                 okMessage="Connected to OBS"
@@ -131,7 +131,7 @@ export function OBSConnectionPanel() {
                     placeholder="Select a source"
                 />
             </FlexColumn>
-        </div>
+        </FlexColumn>
     )
 }
 

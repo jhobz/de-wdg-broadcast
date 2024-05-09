@@ -4,11 +4,14 @@ import { StatsData, PlayerInfo } from '../extension/index'
 
 import { Dropdown, DropdownProps } from 'primereact/dropdown'
 
-type PlayerSelectorProps = {
+interface PlayerSelectorProps extends DropdownProps {
     players?: string[]
 }
 
-export const PlayerSelector: React.FC<PlayerSelectorProps> = ({ players }) => {
+export const PlayerSelector: React.FC<PlayerSelectorProps> = ({
+    players,
+    ...props
+}) => {
     // @ts-expect-error there is a bug with ts arrays in @nodecg/react-hooks@1.0.1 that will be fixed in the next release
     const [playersRep] = useReplicant<PlayerInfo[]>('players')
     // @ts-expect-error there is a bug with ts arrays in @nodecg/react-hooks@1.0.1 that will be fixed in the next release
@@ -38,6 +41,7 @@ export const PlayerSelector: React.FC<PlayerSelectorProps> = ({ players }) => {
 
     return (
         <Dropdown
+            {...props}
             style={{ width: 300 }}
             options={
                 players
