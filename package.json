@@ -60,6 +60,24 @@
                 ]
             },
             {
+                "name": "schedule",
+                "title": "Schedule Base Image",
+                "allowedTypes": [
+                    "jpg",
+                    "jpeg",
+                    "png"
+                ]
+            },
+            {
+                "name": "schedule-obsolete-day",
+                "title": "Schedule Obsolete Day Image",
+                "allowedTypes": [
+                    "jpg",
+                    "jpeg",
+                    "png"
+                ]
+            },
+            {
                 "name": "team-logos",
                 "title": "NBA 2K League Team Logos",
                 "allowedTypes": [
@@ -125,6 +143,12 @@
                 "file": "rundown.html",
                 "width": "auto",
                 "height": "auto",
+                "singleInstance": false
+            },
+            {
+                "file": "schedule.html",
+                "width": 1920,
+                "height": 1080,
                 "singleInstance": false
             },
             {
