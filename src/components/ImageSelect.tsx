@@ -27,8 +27,8 @@ export type ImageSelectOption = {
 export default function ImageSelect(props: DropdownProps) {
     const optionTemplate = (option: ImageSelectOption) => {
         return (
-            <Option className='ImageSelect'>
-                <img src={option.img}/>
+            <Option className="ImageSelect">
+                <img src={option.img} />
                 <label>{option.name}</label>
             </Option>
         )
@@ -39,14 +39,14 @@ export default function ImageSelect(props: DropdownProps) {
             return optionTemplate(option)
         }
 
-        return (<span>{ props.placeholder }</span>)
+        return <span>{props.placeholder}</span>
     }
 
-	return (
+    return (
         <Dropdown
             {...props}
             itemTemplate={optionTemplate}
             valueTemplate={valueTemplate}
         />
-	)
+    )
 }

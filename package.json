@@ -82,32 +82,10 @@
         "compatibleRange": "^2.0.0",
         "dashboardPanels": [
             {
-                "name": "special-controls-panel",
-                "title": "Special Controls",
-                "file": "special-controls-panel.html",
-                "headerColor": "#525F78",
-                "width": 3
-            },
-            {
-                "name": "status-panel",
-                "title": "Status",
-                "file": "status-panel.html",
-                "headerColor": "#525F78",
-                "width": 3
-            },
-            {
-                "name": "matchup-info-panel",
-                "title": "Matchup Info",
-                "file": "matchup-info-panel.html",
-                "headerColor": "#525F78",
-                "width": 4
-            },
-            {
-                "name": "rundownPanel",
-                "title": "Rundown Editor",
-                "file": "rundown-panel.html",
-                "width": 5,
-                "headerColor": "#525F78"
+                "name": "game-day-panel",
+                "title": "Game Day",
+                "file": "game-day-panel.html",
+                "fullbleed": true
             },
             {
                 "name": "obsPanel",
