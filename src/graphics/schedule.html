@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <style>
+            :root {
+                --day-offset: 0;
+                --day-width: 81px;
+                --day-height: 147px;
+                --day-gap: 5.2px;
+                --week-width: calc(var(--day-width) * 7 + var(--day-gap) * 6);
+                --week-start: 346px;
+                --month-start: 244px;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family: 'Apotek';
+                font-size: 100px;
+                color: #1a1a1a;
+            }
+
+            .schedule > div > img:first-child {
+                --first-week-offset: calc(
+                    (var(--day-width) + var(--day-gap)) * var(--day-offset)
+                );
+                margin-left: var(--first-week-offset);
+            }
+
+            .schedule[data-startday='1'] {
+                --day-offset: 1;
+            }
+
+            .schedule[data-startday='2'] {
+                --day-offset: 2;
+            }
+
+            .schedule[data-startday='3'] {
+                --day-offset: 3;
+            }
+
+            .schedule[data-startday='4'] {
+                --day-offset: 4;
+            }
+
+            .schedule[data-startday='5'] {
+                --day-offset: 5;
+            }
+
+            .schedule[data-startday='6'] {
+                --day-offset: 6;
+            }
+        </style>
+        <script type="javascript"></script>
+    </head>
+    <body>
+        <div id="root"></div>
+        <script type="module" src="./Schedule.tsx"></script>
+    </body>
+</html>
