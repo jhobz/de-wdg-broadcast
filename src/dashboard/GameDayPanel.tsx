@@ -6,6 +6,7 @@ import { MatchupInfoPanel } from './MatchupInfoPanel'
 import { RundownPanel } from './RundownPanel'
 import { SpecialControlsPanel } from './SpecialControlsPanel'
 import { FlexColumn } from '../components/layout/Flexbox'
+import { TasksPanel } from './TasksPanel'
 
 const PanelGrid = styled.div`
     display: grid;
@@ -46,16 +47,20 @@ const GameDayPanel: React.FC = () => {
     return (
         <PanelGrid>
             <Panel title="Connection Status">
-                <StatusPanel></StatusPanel>
+                <StatusPanel />
             </Panel>
             <Panel className="span2" title="Matchup Info">
-                <MatchupInfoPanel></MatchupInfoPanel>
+                <MatchupInfoPanel />
             </Panel>
             <Panel className="span3" title="Rundown Editor">
-                <RundownPanel></RundownPanel>
+                <RundownPanel />
             </Panel>
             <Panel title="Special Effects">
-                <SpecialControlsPanel></SpecialControlsPanel>
+                <SpecialControlsPanel />
+            </Panel>
+            <div></div>
+            <Panel className="span2" title="Broadcast Checklist">
+                <TasksPanel />
             </Panel>
         </PanelGrid>
     )
