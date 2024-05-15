@@ -1,7 +1,9 @@
-* {
-    margin: 0;
-}
+@layer reset {
+    * {
+        margin: 0;
+    }
 
-.monospace {
-    font-family: monospace;
+    .monospace {
+        font-family: monospace;
+    }
 }

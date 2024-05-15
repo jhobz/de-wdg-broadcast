@@ -74,6 +74,8 @@ export type PlayerStatsData = Partial<{
     PLAYER: string
     FGM: string
     FGA: string
+    id: string
+    team: string
 }>
 
 export type StatsData = {
@@ -271,6 +273,7 @@ module.exports = async function (nodecg: NodeCG.ServerAPI) {
                 player,
                 team === 'Wizards District Gaming'
             )
+            googleStatusRep.value = true
         } catch (e) {
             logger.error('Unknown error trying to change player comparison.', e)
         }

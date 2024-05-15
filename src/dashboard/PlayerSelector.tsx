@@ -1,67 +1,131 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useReplicant } from '@nodecg/react-hooks'
-import { StatsData, PlayerInfo } from '../extension/index'
+import { StatsData, PlayerInfo, TeamInfo } from '../extension/index'
 
 import { Dropdown, DropdownProps } from 'primereact/dropdown'
+import { FlexRow } from '../components/layout/Flexbox'
+import styled from 'styled-components'
 
 interface PlayerSelectorProps extends DropdownProps {
-    players?: string[]
+    teamFilter?: string
+    comparisonId: number
+}
+
+// Primereact Dropdown doesn't seem to expose this type, so we have to recreate it
+type DropdownGroupOption = {
+    code?: string
+    group: boolean
+    index: number
+    label?: string
+    optionGroup: GroupedOption
+}
+
+type GroupedOption = {
+    name: string
+    logoUrl: string
+    players: PlayerInfo[]
+}
+
+const Option = styled(FlexRow)`
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    height: 30px;
+
+    img {
+        width: 30px;
+        object-fit: contain;
+    }
+
+    label {
+        flex-grow: 1;
+    }
+`
+
+const groupTemplate = (option: DropdownGroupOption) => {
+    console.log(option)
+    return (
+        <Option>
+            <img src={option.optionGroup.logoUrl} />
+            <label>{option.optionGroup.name}</label>
+        </Option>
+    )
 }
 
 export const PlayerSelector: React.FC<PlayerSelectorProps> = ({
-    players,
+    teamFilter,
+    comparisonId,
     ...props
 }) => {
+    // @ts-expect-error there is a bug with ts arrays in @nodecg/react-hooks@1.0.1 that will be fixed in the next release
+    const [teamsRep] = useReplicant<TeamInfo[]>('teams')
+    // @ts-expect-error there is a bug with ts arrays in @nodecg/react-hooks@1.0.1 that will be fixed in the next release
+    const [teamLogosRep] = useReplicant<NodeCG.AssetFile[]>('assets:team-logos')
     // @ts-expect-error there is a bug with ts arrays in @nodecg/react-hooks@1.0.1 that will be fixed in the next release
     const [playersRep] = useReplicant<PlayerInfo[]>('players')
     // @ts-expect-error there is a bug with ts arrays in @nodecg/react-hooks@1.0.1 that will be fixed in the next release
     const [statsRep] = useReplicant<StatsData>('stats')
 
-    const [playerOptions, setPlayerOptions] = React.useState<
-        DropdownProps[] | undefined
+    const [selectedPlayer, setSelectedPlayer] = useState<PlayerInfo>()
+    const [playerOptions, setPlayerOptions] = useState<
+        GroupedOption[] | undefined
     >([])
 
-    React.useEffect(() => {
-        setPlayerOptions(
-            playersRep?.map((player) => {
-                return {
-                    name: player.name,
-                    value: player,
-                } as DropdownProps
-            })
-        )
-    }, [playersRep])
+    useEffect(() => {
+        const groupedOptions: GroupedOption[] =
+            teamsRep?.map((team) => {
+                const matchingLogo = teamLogosRep?.find(
+                    (asset) =>
+                        asset.base.indexOf(team.team.replaceAll(' ', '_')) > -1
+                )
 
-    const setSelectedValue = (value: PlayerInfo) => {
-        nodecg.sendMessage('changePlayerComparison', {
-            player: value.name,
-            team: value.team,
+                return {
+                    name: team.team,
+                    logoUrl: matchingLogo ? matchingLogo.url : '',
+                    players: [],
+                }
+            }) || []
+
+        groupedOptions?.forEach((team) => {
+            team.players =
+                playersRep?.filter(
+                    (player) =>
+                        player.team.toLowerCase() === team.name.toLowerCase()
+                ) || []
         })
-    }
+
+        setPlayerOptions(groupedOptions || [])
+    }, [playersRep, teamsRep, teamLogosRep])
+
+    useEffect(() => {
+        setSelectedPlayer({
+            id: statsRep?.comparison[comparisonId].id,
+            name: statsRep?.comparison[comparisonId].PLAYER ?? '',
+            team: statsRep?.comparison[comparisonId].team ?? '',
+        })
+    }, [statsRep, comparisonId])
 
     return (
         <Dropdown
             {...props}
-            style={{ width: 300 }}
             options={
-                players
-                    ? players.map((name: string) => {
-                          return {
-                              name,
-                              value: {
-                                  name,
-                                  team: 'Wizards District Gaming',
-                              },
-                          }
-                      })
+                teamFilter
+                    ? playerOptions?.filter((team) =>
+                          teamFilter.includes(team.name)
+                      )
                     : playerOptions
             }
-            value={statsRep?.comparison[0]['PLAYER']}
+            value={selectedPlayer}
+            optionGroupLabel="name"
+            optionGroupChildren="players"
+            optionGroupTemplate={groupTemplate}
             optionLabel="name"
-            optionValue="value"
             placeholder="Select player"
             onChange={(e) => {
-                setSelectedValue(e.value)
+                nodecg.sendMessage('changePlayerComparison', {
+                    player: e.value.name,
+                    team: e.value.team,
+                })
             }}
         />
     )

@@ -20,7 +20,7 @@ export const SpecialControlsPanel: React.FC = () => {
     const buttons = assetsRep.map((asset) => {
         return (
             <Button
-                style={{ minWidth: 'min-content' }}
+                style={{ minWidth: 'min-content', justifyContent: 'center' }}
                 key={asset.name}
                 onClick={(e) => {
                     onSpecialClick(e.currentTarget.innerText)
