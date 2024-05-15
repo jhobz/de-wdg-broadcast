@@ -3,10 +3,11 @@ import { OpponentSelector } from './OpponentSelector'
 import 'primereact/resources/themes/md-dark-indigo/theme.css'
 import { FlexColumn, FlexRow } from '../components/layout/Flexbox'
 import { PlayerSelector } from './PlayerSelector'
-
-const wdgPlayers = ['Just Awkward', 'Newdini', 'Type', 'Benzo', 'BRich']
+import { useReplicant } from '@nodecg/react-hooks'
 
 export const MatchupInfoPanel: React.FC = () => {
+    const [opponentRep] = useReplicant<string>('opponent')
+
     return (
         <FlexColumn gap="1rem">
             <h3>Opponent</h3>
@@ -14,12 +15,16 @@ export const MatchupInfoPanel: React.FC = () => {
             <h3>Player Comparison</h3>
             <FlexRow align="center" gap="1rem">
                 <PlayerSelector
-                    playerFilter={wdgPlayers}
+                    teamFilter="Wizards District Gaming"
                     comparisonId={0}
                     filter
                 />
                 <p>vs.</p>
-                <PlayerSelector comparisonId={1} filter />
+                <PlayerSelector
+                    teamFilter={opponentRep}
+                    comparisonId={1}
+                    filter
+                />
             </FlexRow>
             <p>
                 Use the controls above to automatically update OBS sources and
