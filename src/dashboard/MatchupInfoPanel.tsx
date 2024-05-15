@@ -13,9 +13,13 @@ export const MatchupInfoPanel: React.FC = () => {
             <OpponentSelector filter />
             <h3>Player Comparison</h3>
             <FlexRow align="center" gap="1rem">
-                <PlayerSelector players={wdgPlayers} filter />
+                <PlayerSelector
+                    playerFilter={wdgPlayers}
+                    comparisonId={0}
+                    filter
+                />
                 <p>vs.</p>
-                <PlayerSelector filter />
+                <PlayerSelector comparisonId={1} filter />
             </FlexRow>
             <p>
                 Use the controls above to automatically update OBS sources and

@@ -1,15 +1,17 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useReplicant } from '@nodecg/react-hooks'
 import { StatsData, PlayerInfo } from '../extension/index'
 
 import { Dropdown, DropdownProps } from 'primereact/dropdown'
 
 interface PlayerSelectorProps extends DropdownProps {
-    players?: string[]
+    playerFilter?: string[]
+    comparisonId: number
 }
 
 export const PlayerSelector: React.FC<PlayerSelectorProps> = ({
-    players,
+    playerFilter,
+    comparisonId,
     ...props
 }) => {
     // @ts-expect-error there is a bug with ts arrays in @nodecg/react-hooks@1.0.1 that will be fixed in the next release
@@ -17,51 +19,42 @@ export const PlayerSelector: React.FC<PlayerSelectorProps> = ({
     // @ts-expect-error there is a bug with ts arrays in @nodecg/react-hooks@1.0.1 that will be fixed in the next release
     const [statsRep] = useReplicant<StatsData>('stats')
 
-    const [playerOptions, setPlayerOptions] = React.useState<
-        DropdownProps[] | undefined
+    const [selectedPlayer, setSelectedPlayer] = useState<PlayerInfo>()
+    const [playerOptions, setPlayerOptions] = useState<
+        PlayerInfo[] | undefined
     >([])
 
-    React.useEffect(() => {
-        setPlayerOptions(
-            playersRep?.map((player) => {
-                return {
-                    name: player.name,
-                    value: player,
-                } as DropdownProps
-            })
-        )
+    useEffect(() => {
+        setPlayerOptions(playersRep || [])
     }, [playersRep])
 
-    const setSelectedValue = (value: PlayerInfo) => {
-        nodecg.sendMessage('changePlayerComparison', {
-            player: value.name,
-            team: value.team,
+    useEffect(() => {
+        setSelectedPlayer({
+            id: statsRep?.comparison[comparisonId].id,
+            name: statsRep?.comparison[comparisonId].PLAYER ?? '',
+            team: statsRep?.comparison[comparisonId].team ?? '',
         })
-    }
+    }, [statsRep, comparisonId])
 
     return (
         <Dropdown
             {...props}
             style={{ width: 300 }}
             options={
-                players
-                    ? players.map((name: string) => {
-                          return {
-                              name,
-                              value: {
-                                  name,
-                                  team: 'Wizards District Gaming',
-                              },
-                          }
-                      })
+                playerFilter
+                    ? playerOptions?.filter((value) =>
+                          playerFilter.includes(value.name)
+                      )
                     : playerOptions
             }
-            value={statsRep?.comparison[0]['PLAYER']}
+            value={selectedPlayer}
             optionLabel="name"
-            optionValue="value"
             placeholder="Select player"
             onChange={(e) => {
-                setSelectedValue(e.value)
+                nodecg.sendMessage('changePlayerComparison', {
+                    player: e.value.name,
+                    team: e.value.team,
+                })
             }}
         />
     )
