@@ -9,7 +9,7 @@ import { FlexColumn } from '../components/layout/Flexbox'
 
 const PanelGrid = styled.div`
     display: grid;
-    grid-template-columns: 1fr 1fr 2fr;
+    grid-template-columns: minmax(auto, 375px) 1fr 2fr;
     grid-template-rows: auto;
     grid-auto-rows: 220px;
     grid-auto-flow: row dense;

@@ -33,5 +33,5 @@ export const EvenGrid = styled.div<{
     grid-template-columns: repeat(${(props) => props.cols}, 1fr);
     grid-template-rows: repeat(${(props) => props.rows}, 1fr);
     gap: ${(props) => (props.gap ? props.gap : 'initial')};
-    justify-items: center;
+    justify-items: stretch;
 `
