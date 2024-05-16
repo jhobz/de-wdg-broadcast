@@ -95,6 +95,15 @@
                     "mp4",
                     "webm"
                 ]
+            },
+            {
+                "name": "upcoming-games",
+                "title": "Upcoming Games Overlay",
+                "allowedTypes": [
+                    "png",
+                    "jpg",
+                    "jpeg"
+                ]
             }
         ],
         "compatibleRange": "^2.0.0",
@@ -153,6 +162,12 @@
             },
             {
                 "file": "teamstats.html",
+                "width": 1920,
+                "height": 1080,
+                "singleInstance": false
+            },
+            {
+                "file": "upcominggames.html",
                 "width": 1920,
                 "height": 1080,
                 "singleInstance": false
