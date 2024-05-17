@@ -51,7 +51,6 @@ export const UpcomingGames: React.FC = () => {
     let count = 0
     const matchElements: JSX.Element[] = scheduleRep
         .filter((match) => {
-            console.log(count)
             return (
                 new Date(match.date).getTime() > Date.now() &&
                 ++count <= NUMBER_OF_GAMES_TO_DISPLAY

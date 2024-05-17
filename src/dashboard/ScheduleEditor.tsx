@@ -1,23 +1,10 @@
-import React, {
-    ChangeEvent,
-    ReactPropTypes,
-    useCallback,
-    useEffect,
-    useState,
-} from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useReplicant } from '@nodecg/react-hooks'
-import { InputTextarea } from 'primereact/inputtextarea'
 import { Button } from 'primereact/button'
 import { Calendar } from 'primereact/calendar'
 import { FlexColumn, FlexRow } from '../components/layout/Flexbox'
 import { Schedule } from '../types/schemas'
 import { InputText } from 'primereact/inputtext'
-
-const timeOptions: Intl.DateTimeFormatOptions = {
-    hour12: true,
-    hour: 'numeric',
-    minute: '2-digit',
-}
 
 type Match = Schedule[0]
 
@@ -112,7 +99,6 @@ export const ScheduleEditor: React.FC = () => {
 
     const onSave = useCallback(
         (key: string, data: Match) => {
-            console.log(key, data)
             const newRep = Array.from(scheduleRep ?? [])
             const index = Number.parseInt(key)
 
@@ -147,9 +133,10 @@ export const ScheduleEditor: React.FC = () => {
     }, [scheduleRep])
 
     return (
-        <FlexColumn gap="1em">
+        <FlexColumn align="flex-start" gap="1em">
             {matchElements}
             <Button
+                text
                 onClick={() => {
                     const newMatches = [...matchElements]
                     newMatches.push(
