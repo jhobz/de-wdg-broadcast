@@ -43,7 +43,6 @@ const Option = styled(FlexRow)`
 `
 
 const groupTemplate = (option: DropdownGroupOption) => {
-    console.log(option)
     return (
         <Option>
             <img src={option.optionGroup.logoUrl} />

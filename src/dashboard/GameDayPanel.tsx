@@ -6,6 +6,7 @@ import { MatchupInfoPanel } from './MatchupInfoPanel'
 import { RundownPanel } from './RundownPanel'
 import { SpecialControlsPanel } from './SpecialControlsPanel'
 import { FlexColumn } from '../components/layout/Flexbox'
+import { ScheduleEditor } from './ScheduleEditor'
 
 const PanelGrid = styled.div`
     display: grid;
@@ -18,6 +19,7 @@ const PanelGrid = styled.div`
     & > * {
         background-color: rgba(0, 0, 0, 0.2);
         padding: 1em;
+        overflow: auto;
     }
 
     & > .span2 {
@@ -56,6 +58,13 @@ const GameDayPanel: React.FC = () => {
             </Panel>
             <Panel title="Special Effects">
                 <SpecialControlsPanel></SpecialControlsPanel>
+            </Panel>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <Panel className="span3" title="Schedule Editor">
+                <ScheduleEditor></ScheduleEditor>
             </Panel>
         </PanelGrid>
     )
