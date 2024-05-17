@@ -32,8 +32,9 @@ const InputWithLabel: React.FC<InputWithLabelProps> = ({
 
 interface MatchEditorProps extends React.HTMLAttributes<HTMLDivElement> {
     matchId: string
-    matchData: Match
-    onSave: (key: string, data: Match) => void
+    matchData?: Match
+    onSave: (key: string, data: Match | null) => void
+    onDelete: () => void
     startInEditMode?: boolean
 }
 
@@ -41,13 +42,30 @@ const MatchEditor: React.FC<MatchEditorProps> = ({
     matchId,
     matchData,
     onSave,
+    onDelete,
     startInEditMode,
 }) => {
     const [isEditing, setIsEditing] = useState<boolean>(!!startInEditMode)
-    const [opponent, setOpponent] = useState<string>(matchData.opponent || '')
+    const [opponent, setOpponent] = useState<string>(matchData?.opponent || '')
     const [date, setDate] = useState<Date>(
         matchData?.date ? new Date(matchData.date) : new Date()
     )
+    const [stateSnapshot, setStateSnapshot] = useState<{
+        opponent: string
+        date: Date
+    }>()
+
+    // Set initial snapshot if component was created with data
+    useEffect(() => {
+        if (!matchData) {
+            return
+        }
+
+        setStateSnapshot({
+            opponent: matchData.opponent,
+            date: new Date(matchData.date),
+        })
+    }, [matchData])
 
     return (
         <FlexRow align="flex-end" gap="1em">
@@ -87,8 +105,55 @@ const MatchEditor: React.FC<MatchEditorProps> = ({
                 <Button onClick={() => setIsEditing(true)}>Edit</Button>
             )}
 
-            {isEditing ? <Button>Cancel</Button> : <Button>Delete</Button>}
+            {isEditing ? (
+                <Button
+                    onClick={() => {
+                        // Newly created item that was canceled -- unmount component entirely
+                        if (!stateSnapshot) {
+                            onDelete()
+                            return
+                        }
+
+                        setOpponent(stateSnapshot.opponent)
+                        setDate(stateSnapshot.date)
+                        setIsEditing(false)
+                    }}
+                >
+                    Cancel
+                </Button>
+            ) : (
+                <Button onClick={() => onDelete()}>Delete</Button>
+            )}
         </FlexRow>
+    )
+}
+
+interface HideableMatchEditorProps extends Partial<MatchEditorProps> {
+    matchId: string
+    onSave: (key: string, data: Match | null) => void
+}
+
+const HideableMatchEditor: React.FC<HideableMatchEditorProps> = ({
+    matchId,
+    onSave,
+    ...props
+}) => {
+    const [isShowing, setIsShowing] = useState<boolean>(true)
+
+    return isShowing ? (
+        <MatchEditor
+            matchId={matchId}
+            onSave={onSave}
+            onDelete={() => {
+                if (props.matchData) {
+                    onSave(matchId, null)
+                }
+                setIsShowing(false)
+            }}
+            {...props}
+        />
+    ) : (
+        <></>
     )
 }
 
@@ -98,11 +163,13 @@ export const ScheduleEditor: React.FC = () => {
     const [matchElements, setMatchElements] = useState<JSX.Element[]>([])
 
     const onSave = useCallback(
-        (key: string, data: Match) => {
+        (key: string, data: Match | null) => {
             const newRep = Array.from(scheduleRep ?? [])
             const index = Number.parseInt(key)
 
-            if (index >= newRep.length) {
+            if (!data) {
+                newRep.splice(index, 1)
+            } else if (index >= newRep.length) {
                 newRep.push(data)
             } else {
                 newRep[index] = data
@@ -121,15 +188,16 @@ export const ScheduleEditor: React.FC = () => {
         setMatchElements(
             scheduleRep.map((match, i) => {
                 return (
-                    <MatchEditor
+                    <HideableMatchEditor
+                        key={i}
                         matchId={i.toString()}
                         matchData={match}
-                        key={i}
                         onSave={onSave}
-                    ></MatchEditor>
+                    />
                 )
             })
         )
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [scheduleRep])
 
     return (
@@ -140,13 +208,12 @@ export const ScheduleEditor: React.FC = () => {
                 onClick={() => {
                     const newMatches = [...matchElements]
                     newMatches.push(
-                        <MatchEditor
+                        <HideableMatchEditor
                             matchId={matchElements.length.toString()}
-                            matchData={{} as Match}
                             key={matchElements.length}
                             startInEditMode
                             onSave={onSave}
-                        ></MatchEditor>
+                        ></HideableMatchEditor>
                     )
                     setMatchElements(newMatches)
                 }}
